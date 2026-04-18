@@ -3,3 +3,6 @@ dist
 .DS_Store
 *.local
 
+# Google service account key — NEVER commit this
+credentials.json
+
