@@ -84,8 +84,8 @@ export default function KanbanBoard() {
         </button>
       </div>
 
-      {/* Kanban board — 2×2 grid, fills remaining height */}
-      <div className="grid flex-1 min-h-0 grid-cols-2 grid-rows-2 gap-4">
+      {/* Kanban board — 1 col on mobile, 2×2 grid on md+ */}
+      <div className="grid flex-1 min-h-0 grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 overflow-y-auto md:overflow-hidden">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}
