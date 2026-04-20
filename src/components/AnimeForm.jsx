@@ -29,7 +29,7 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState('');
-  const { addAnimeEntry, updateAnimeEntry } = useAnime();
+  const { addAnimeEntry, updateAnimeEntry, anime } = useAnime();
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -55,6 +55,16 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
         await updateAnimeEntry(initialData.id, payload);
         setSubmitSuccess('Anime updated successfully.');
       } else {
+        const duplicate = anime.find(
+          (a) =>
+            a.title.trim().toLowerCase() === payload.title.toLowerCase() &&
+            a.status === payload.status,
+        );
+        if (duplicate) {
+          setSubmitError(`"${payload.title}" already exists in your ${payload.status} list.`);
+          setSubmitting(false);
+          return;
+        }
         await addAnimeEntry(payload);
         setFormData(INITIAL_FORM);
         setSubmitSuccess('Anime added to your watchlist.');

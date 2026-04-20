@@ -31,7 +31,7 @@ export function AnimeProvider({ children }) {
 
   const addAnimeEntry = useCallback(async (payload) => {
     const result = await apiAdd(payload);
-    setAnime((prev) => [result.anime, ...prev]);
+    setAnime((prev) => [...prev, result.anime]);
     return result;
   }, []);
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import AnimeForm from './AnimeForm';
 
-export default function AddAnimeModal({ onClose }) {
+export default function AddAnimeModal({ onClose, initialData = null }) {
   useEffect(() => {
     function onKey(e) {
       if (e.key === 'Escape') onClose();
@@ -29,7 +29,7 @@ export default function AddAnimeModal({ onClose }) {
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
-        <AnimeForm onSuccess={onClose} />
+        <AnimeForm initialData={initialData} onSuccess={onClose} />
       </div>
     </div>
   );

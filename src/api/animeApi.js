@@ -34,7 +34,7 @@ export async function getAnime() {
       // Sort newest first to match the add-to-front behaviour
       const sorted = data.anime.slice().sort(
         (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
-      );
+      ); // oldest first — first added stays at top
       persist(sorted);
       return { anime: sorted };
     }

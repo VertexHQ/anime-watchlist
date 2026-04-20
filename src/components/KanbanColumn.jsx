@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import AnimeCard from './AnimeCard';
 
-export default function KanbanColumn({ column, items, draggingId, onDragStart, onDragEnd, onDrop, onDelete }) {
+export default function KanbanColumn({ column, items, draggingId, onDragStart, onDragEnd, onDrop, onDelete, onEdit }) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   return (
     <div
-      className={`flex min-h-60 flex-col gap-2 rounded-xl border p-3 backdrop-blur-sm transition-all duration-150 ${
+      className={`flex h-full flex-col gap-2 rounded-xl border p-3 backdrop-blur-sm transition-all duration-150 ${
         isDragOver
           ? `${column.borderClass} ${column.glowClass} bg-white/5`
           : 'border-gray-700/40 bg-black/30'
@@ -37,8 +37,8 @@ export default function KanbanColumn({ column, items, draggingId, onDragStart, o
         </span>
       </div>
 
-      {/* Cards */}
-      <div className="flex flex-col gap-2">
+      {/* Cards — scrollable, never pushes the page */}
+      <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-0.5">
         {items.map((item) => (
           <AnimeCard
             key={item.id}
@@ -47,6 +47,7 @@ export default function KanbanColumn({ column, items, draggingId, onDragStart, o
             onDelete={onDelete}
             onDragEnd={onDragEnd}
             onDragStart={() => onDragStart(item.id)}
+            onEdit={onEdit}
           />
         ))}
       </div>

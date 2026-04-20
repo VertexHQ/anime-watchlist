@@ -48,6 +48,7 @@ export default function KanbanBoard() {
   const { anime, loading, updateAnimeEntry, deleteAnimeEntry } = useAnime();
   const [draggingId, setDraggingId] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingAnime, setEditingAnime] = useState(null);
 
   if (loading) {
     return <Loader message="Loading your watchlist..." />;
@@ -65,7 +66,7 @@ export default function KanbanBoard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full flex-col gap-4">
       {/* Board header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -83,8 +84,8 @@ export default function KanbanBoard() {
         </button>
       </div>
 
-      {/* Kanban board */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Kanban board — 2×2 grid, fills remaining height */}
+      <div className="grid flex-1 min-h-0 grid-cols-2 grid-rows-2 gap-4">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}
@@ -95,11 +96,15 @@ export default function KanbanBoard() {
             onDragEnd={() => setDraggingId(null)}
             onDragStart={setDraggingId}
             onDrop={handleDrop}
+            onEdit={setEditingAnime}
           />
         ))}
       </div>
 
       {showModal ? <AddAnimeModal onClose={() => setShowModal(false)} /> : null}
+      {editingAnime ? (
+        <AddAnimeModal initialData={editingAnime} onClose={() => setEditingAnime(null)} />
+      ) : null}
     </div>
   );
 }
