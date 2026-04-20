@@ -97,6 +97,7 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
             <option value={ANIME_STATUSES.WATCHING}>Watching</option>
             <option value={ANIME_STATUSES.COMPLETED}>Completed</option>
             <option value={ANIME_STATUSES.PLANNED}>Plan to Watch</option>
+            <option value={ANIME_STATUSES.UPCOMING}>Upcoming</option>
           </select>
         </label>
 

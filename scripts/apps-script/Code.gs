@@ -3,7 +3,7 @@
 // add it here and the sheet headers will auto-update on the next request.
 var APP_CONFIG = {
   SPREADSHEET_ID: '1M5h2vyTr3eZmFxTLmW9XoJ-YOOaTexMfhVEaUH_G68M',
-  SHEETS: { WATCHING: 'watching', COMPLETED: 'completed', PLAN: 'plan' },
+  SHEETS: { WATCHING: 'watching', COMPLETED: 'completed', PLAN: 'plan', UPCOMING: 'upcoming' },
   FIELDS: ['id', 'title', 'status', 'rating', 'notes', 'image', 'createdAt']
 };
 
@@ -99,7 +99,7 @@ function handleDelete_(data) {
 
 // --- SHEET HELPERS ------------------------------------------------------------
 function getAllAnime_() {
-  var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN];
+  var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN, APP_CONFIG.SHEETS.UPCOMING];
   var results = [];
   for (var i = 0; i < sheetNames.length; i++) {
     var sheet = getOrCreateSheet_(sheetNames[i]);
@@ -111,11 +111,12 @@ function getAllAnime_() {
 function getSheetForStatus_(status) {
   if (status === 'completed') return getOrCreateSheet_(APP_CONFIG.SHEETS.COMPLETED);
   if (status === 'plan')      return getOrCreateSheet_(APP_CONFIG.SHEETS.PLAN);
+  if (status === 'upcoming')  return getOrCreateSheet_(APP_CONFIG.SHEETS.UPCOMING);
   return                             getOrCreateSheet_(APP_CONFIG.SHEETS.WATCHING);
 }
 
 function findRowById_(id) {
-  var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN];
+  var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN, APP_CONFIG.SHEETS.UPCOMING];
   for (var s = 0; s < sheetNames.length; s++) {
     var sheet  = getOrCreateSheet_(sheetNames[s]);
     var values = sheet.getDataRange().getValues();
@@ -215,6 +216,7 @@ function normalizeStatus_(status) {
   if (['completed', 'complete', 'watched'].indexOf(v) !== -1)                  return 'completed';
   if (['watching', 'current', 'in-progress', 'in progress'].indexOf(v) !== -1) return 'watching';
   if (['plan', 'planned', 'plan to watch', 'unwatched'].indexOf(v) !== -1)     return 'plan';
+  if (['upcoming', 'coming soon', 'not yet aired', 'unreleased'].indexOf(v) !== -1) return 'upcoming';
   return v;
 }
 

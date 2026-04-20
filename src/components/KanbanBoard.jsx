@@ -33,6 +33,15 @@ const COLUMNS = [
     glowClass: 'shadow-[inset_0_0_24px_rgba(56,189,248,0.07)]',
     countClass: 'border-sky-500/30 bg-sky-500/15 text-sky-300',
   },
+  {
+    id: ANIME_STATUSES.UPCOMING,
+    label: 'Upcoming',
+    emoji: '✦',
+    dotClass: 'bg-amber-400',
+    borderClass: 'border-amber-500/50',
+    glowClass: 'shadow-[inset_0_0_24px_rgba(251,191,36,0.07)]',
+    countClass: 'border-amber-500/30 bg-amber-500/15 text-amber-300',
+  },
 ];
 
 export default function KanbanBoard() {
@@ -75,7 +84,7 @@ export default function KanbanBoard() {
       </div>
 
       {/* Kanban board */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}

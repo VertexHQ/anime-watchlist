@@ -6,6 +6,7 @@ export const ANIME_STATUSES = {
   COMPLETED: 'completed',
   WATCHING: 'watching',
   PLANNED: 'plan',
+  UPCOMING: 'upcoming',
 };
 
 export const API_STATUSES = {
@@ -44,6 +45,10 @@ export function normalizeAnimeStatus(status) {
 
   if (['plan', 'planned', 'plan to watch', 'unwatched'].includes(value)) {
     return ANIME_STATUSES.PLANNED;
+  }
+
+  if (['upcoming', 'coming soon', 'not yet aired', 'unreleased'].includes(value)) {
+    return ANIME_STATUSES.UPCOMING;
   }
 
   return value;
