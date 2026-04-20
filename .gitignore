@@ -2,6 +2,7 @@ node_modules
 dist
 .DS_Store
 *.local
+.env
 
 # Google service account key — NEVER commit this
 credentials.json

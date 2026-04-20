@@ -1,11 +1,32 @@
 // --- CONFIG ------------------------------------------------------------------
-// FIELDS drives header creation in every sheet. If you add a form field,
-// add it here and the sheet headers will auto-update on the next request.
+// Values are read from Script Properties (File > Project settings > Script properties).
+// This keeps credentials out of source code — equivalent to a .env file for GAS.
+// To set them: run the setupProperties() function once from the Apps Script editor.
+// FIELDS drives header creation; add a field here and headers auto-update.
+var _props = PropertiesService.getScriptProperties().getProperties();
 var APP_CONFIG = {
-  SPREADSHEET_ID: '1M5h2vyTr3eZmFxTLmW9XoJ-YOOaTexMfhVEaUH_G68M',
-  SHEETS: { WATCHING: 'watching', COMPLETED: 'completed', PLAN: 'plan', UPCOMING: 'upcoming' },
+  SPREADSHEET_ID: _props.SPREADSHEET_ID || '1M5h2vyTr3eZmFxTLmW9XoJ-YOOaTexMfhVEaUH_G68M',
+  SHEETS: {
+    WATCHING:  _props.SHEET_WATCHING  || 'watching',
+    COMPLETED: _props.SHEET_COMPLETED || 'completed',
+    PLAN:      _props.SHEET_PLAN      || 'plan',
+    UPCOMING:  _props.SHEET_UPCOMING  || 'upcoming'
+  },
   FIELDS: ['id', 'title', 'status', 'rating', 'notes', 'image', 'createdAt']
 };
+
+// Run this function ONCE from the Apps Script editor to store your config
+// in Script Properties (equivalent of writing to a .env file).
+function setupProperties() {
+  PropertiesService.getScriptProperties().setProperties({
+    SPREADSHEET_ID: '1M5h2vyTr3eZmFxTLmW9XoJ-YOOaTexMfhVEaUH_G68M',
+    SHEET_WATCHING:  'watching',
+    SHEET_COMPLETED: 'completed',
+    SHEET_PLAN:      'plan',
+    SHEET_UPCOMING:  'upcoming'
+  });
+  Logger.log('Script properties saved.');
+}
 
 // --- HTTP HANDLERS ------------------------------------------------------------
 function doGet(e) {

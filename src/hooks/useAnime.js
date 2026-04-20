@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { AnimeContext } from '../context/AnimeContext';
+import { AnimeContext } from '../context/animeContextRef';
 
 export function useAnime() {
   const context = useContext(AnimeContext);

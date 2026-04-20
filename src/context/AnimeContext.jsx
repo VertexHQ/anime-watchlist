@@ -1,12 +1,11 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getAnime,
   addAnime as apiAdd,
   updateAnime as apiUpdate,
   deleteAnime as apiDelete,
 } from '../api/animeApi';
-
-export const AnimeContext = createContext(undefined);
+import { AnimeContext } from './animeContextRef';
 
 export function AnimeProvider({ children }) {
   const [anime, setAnime] = useState([]);

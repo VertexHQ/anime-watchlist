@@ -1,6 +1,13 @@
-// Paste your Google Apps Script web app URL here after deploying.
-// Leave empty to disable Google Sheets sync (localStorage still works).
-export const SHEETS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6BOzljOkw3xUMV3TbEWej1ED26v52krJ90gIMZitpC1E53cCFeSatLAbH_m790jFb/exec';
+// Values are loaded from .env (VITE_ prefix required for Vite to expose them).
+// Copy .env.example to .env and fill in your values.
+export const SHEETS_SCRIPT_URL = import.meta.env.VITE_SHEETS_SCRIPT_URL || '';
+
+export const SHEET_NAMES = {
+  WATCHING:  import.meta.env.VITE_SHEET_WATCHING  || 'watching',
+  COMPLETED: import.meta.env.VITE_SHEET_COMPLETED || 'completed',
+  PLAN:      import.meta.env.VITE_SHEET_PLAN      || 'plan',
+  UPCOMING:  import.meta.env.VITE_SHEET_UPCOMING  || 'upcoming',
+};
 
 export const ANIME_STATUSES = {
   COMPLETED: 'completed',
