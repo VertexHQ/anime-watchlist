@@ -7,3 +7,4 @@ dist
 # Google service account key — NEVER commit this
 credentials.json
 
+.vercel
