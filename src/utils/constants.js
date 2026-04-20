@@ -1,19 +1,21 @@
+import { REQUIRED_SHEET_TABS } from '../setup/setupContract';
+
 // Values are loaded from .env (VITE_ prefix required for Vite to expose them).
 // Copy .env.example to .env and fill in your values.
 export const SHEETS_SCRIPT_URL = import.meta.env.VITE_SHEETS_SCRIPT_URL || '';
 
 export const SHEET_NAMES = {
-  WATCHING:  import.meta.env.VITE_SHEET_WATCHING  || 'watching',
-  COMPLETED: import.meta.env.VITE_SHEET_COMPLETED || 'completed',
-  PLAN:      import.meta.env.VITE_SHEET_PLAN      || 'plan',
-  UPCOMING:  import.meta.env.VITE_SHEET_UPCOMING  || 'upcoming',
+  WATCHING: import.meta.env.VITE_SHEET_WATCHING || REQUIRED_SHEET_TABS.watching.name,
+  COMPLETED: import.meta.env.VITE_SHEET_COMPLETED || REQUIRED_SHEET_TABS.completed.name,
+  PLAN: import.meta.env.VITE_SHEET_PLAN || REQUIRED_SHEET_TABS.plan.name,
+  UPCOMING: import.meta.env.VITE_SHEET_UPCOMING || REQUIRED_SHEET_TABS.upcoming.name,
 };
 
 export const ANIME_STATUSES = {
-  COMPLETED: 'completed',
-  WATCHING: 'watching',
-  PLANNED: 'plan',
-  UPCOMING: 'upcoming',
+  COMPLETED: REQUIRED_SHEET_TABS.completed.name,
+  WATCHING: REQUIRED_SHEET_TABS.watching.name,
+  PLANNED: REQUIRED_SHEET_TABS.plan.name,
+  UPCOMING: REQUIRED_SHEET_TABS.upcoming.name,
 };
 
 export const API_STATUSES = {
@@ -72,3 +74,17 @@ export function isWatchingStatus(status) {
 export function isPlannedStatus(status) {
   return normalizeAnimeStatus(status) === ANIME_STATUSES.PLANNED;
 }
+
+export {
+  SETUP_STORAGE_KEYS,
+  SETUP_STEPS,
+  SETUP_STEP_ORDER,
+  SUPPORTED_LANGUAGES,
+  DEFAULT_LANGUAGE,
+  REQUIRED_SHEET_TABS,
+  REQUIRED_SHEET_TAB_NAMES,
+  parseSpreadsheetId,
+  normalizeSetupPayload,
+  validateSetupPayload,
+  buildStableClientUserId,
+} from '../setup/setupContract';

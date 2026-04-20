@@ -59,8 +59,16 @@ const SOCIAL_LINKS = [
 
 const DISCORD_USERNAME = 'salimuddin07';
 
-export default function Navbar() {
+export default function Navbar({
+  setupComplete = false,
+  username = '',
+  theme = 'dark',
+  onToggleTheme,
+  onUpdateSheetLink,
+  onLogout,
+}) {
   const [discordCopied, setDiscordCopied] = useState(false);
+  const isLightTheme = theme === 'light';
 
   function copyDiscord() {
     navigator.clipboard.writeText(DISCORD_USERNAME).then(() => {
@@ -70,10 +78,13 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-transparent backdrop-blur-sm">
-      <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-4">
-        {/* Logo */}
-        <svg width="220" height="48" viewBox="0 0 220 48" xmlns="http://www.w3.org/2000/svg">
+    <header className="app-navbar sticky top-0 z-50 border-b border-white/5 bg-transparent backdrop-blur-sm">
+      <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2 sm:flex-nowrap sm:py-1.5">
+        <svg
+          className="h-10 w-[180px] shrink-0 sm:h-12 sm:w-[220px]"
+          viewBox="0 0 220 48"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <defs>
             <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#7c3aed"/>
@@ -92,38 +103,77 @@ export default function Navbar() {
           <line x1="0" y1="47.5" x2="218" y2="47.5" stroke="url(#neonGrad)" strokeWidth="1.5" opacity="0.5"/>
         </svg>
 
-        {/* Social Links */}
-        <div className="flex items-center gap-1">
-          {SOCIAL_LINKS.map(({ label, href, icon }) => (
-            <a
-              key={label}
-              href={href}
-              target={href.startsWith('mailto') ? '_self' : '_blank'}
-              rel="noreferrer"
-              aria-label={label}
-              title={label}
-              className="rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-purple-950/50 hover:text-purple-400"
-            >
-              {icon}
-            </a>
-          ))}
-
-          {/* Discord — copy username */}
+        <div className="flex flex-1 flex-col items-end gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
           <button
-            onClick={copyDiscord}
-            aria-label="Discord"
-            title={discordCopied ? 'Copied!' : `Discord: ${DISCORD_USERNAME}`}
-            className="relative rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-purple-950/50 hover:text-purple-400"
+            aria-pressed={isLightTheme}
+            className={`theme-toggle-btn rounded-md border px-3 py-1 text-xs font-semibold transition ${
+              isLightTheme
+                ? 'border-amber-400/65 bg-amber-100 text-amber-900 hover:border-amber-500 hover:bg-amber-200'
+                : 'border-cyan-500/50 bg-cyan-900/25 text-cyan-100 hover:border-cyan-400 hover:bg-cyan-800/35'
+            }`}
+            onClick={() => onToggleTheme?.()}
+            type="button"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-              <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z" />
-            </svg>
-            {discordCopied && (
-              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded border border-purple-900/60 bg-black/80 px-2 py-0.5 text-xs text-purple-300">
-                Copied!
-              </span>
-            )}
+            {isLightTheme ? 'Light' : 'Dark'}
           </button>
+
+          {setupComplete ? (
+            <div className="account-panel flex flex-wrap items-center justify-end gap-2 rounded-lg border border-cyan-500/20 bg-black/45 px-2 py-1 shadow-[0_0_14px_rgba(34,211,238,0.08)]">
+              <p
+                className="max-w-[160px] truncate text-xs text-cyan-100/90"
+                title={username || 'User'}
+              >
+                <span className="text-cyan-300/80">User:</span>{' '}
+                <span className="font-semibold text-cyan-200">{username || 'User'}</span>
+              </p>
+              <button
+                className="rounded-md border border-purple-500/50 bg-purple-700/35 px-2.5 py-1 text-xs font-medium text-purple-100 transition hover:border-purple-400 hover:bg-purple-600/45 hover:text-white"
+                onClick={() => onUpdateSheetLink?.()}
+                type="button"
+              >
+                Update Sheet Link
+              </button>
+              <button
+                className="rounded-md border border-rose-500/55 bg-rose-600/25 px-2.5 py-1 text-xs font-medium text-rose-100 transition hover:border-rose-400 hover:bg-rose-500/35 hover:text-white"
+                onClick={() => onLogout?.()}
+                type="button"
+              >
+                Logout
+              </button>
+            </div>
+          ) : null}
+
+          <div className="flex items-center gap-1">
+            {SOCIAL_LINKS.map(({ label, href, icon }) => (
+              <a
+                key={label}
+                href={href}
+                target={href.startsWith('mailto') ? '_self' : '_blank'}
+                rel="noreferrer"
+                aria-label={label}
+                title={label}
+                className="social-link rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-purple-950/50 hover:text-purple-400"
+              >
+                {icon}
+              </a>
+            ))}
+
+            <button
+              onClick={copyDiscord}
+              aria-label="Discord"
+              title={discordCopied ? 'Copied!' : `Discord: ${DISCORD_USERNAME}`}
+              className="social-link relative rounded-md p-2 text-gray-500 transition-colors duration-200 hover:bg-purple-950/50 hover:text-purple-400"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z" />
+              </svg>
+              {discordCopied && (
+                <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded border border-purple-900/60 bg-black/80 px-2 py-0.5 text-xs text-purple-300">
+                  Copied!
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </header>

@@ -1,7 +1,7 @@
 # Anime Watchlist
 
 A drag-and-drop kanban anime tracker built with Vite + React + Tailwind CSS.  
-Tracks anime across four columns — **Watching**, **Completed**, **Plan to Watch**, and **Upcoming** — with localStorage as the primary data store and optional Google Sheets sync via Apps Script.
+Tracks anime across four columns — **Watching**, **Completed**, **Plan to Watch**, and **Upcoming** — with localStorage as the primary data store and Google Sheets sync via Apps Script.
 
 ---
 
@@ -74,6 +74,36 @@ npm run dev
 ```
 
 App runs at `http://localhost:5173`.
+
+### First-run onboarding (in app)
+
+On first launch, the app starts onboarding before the kanban board:
+
+1. Enter username + password (login-style form)  
+2. Link your Google Sheet (URL or spreadsheet ID, when required)
+
+Existing-user behavior during step 1 (credentials):
+- App checks the central **User Data** tab via Apps Script
+- If a matching user with stored sheet metadata is found, step 2 is skipped
+- If not found (or lookup is unavailable), onboarding continues to step 2
+
+Sheet setup notes shown in-app:
+- Share as **Anyone with the link** with **edit** access
+- Required tabs used/created by the app (auto-created if missing): **Watching, Completed, Plan, Upcoming**
+- Example URL format: `https://docs.google.com/spreadsheets/d/<spreadsheet-id>/edit#gid=0`
+
+Persistence behavior:
+- Setup is saved in localStorage (`anime_watchlist_setup_v1`) with a stable local `userId`
+- Username/password are stored locally and restored for returning users (with cookie fallback support)
+- After setup is complete, users are not prompted again on refresh/revisit
+- Account controls are now compact in the navbar: **username**, **Language selector**, **Update Sheet Link**, **Logout**
+- Language can be changed anytime from the navbar selector (**English, Bangla, Hindi, Gujarati**)
+- Navbar includes a **Light/Dark mode** option
+- Theme preference is remembered locally and restored on refresh/revisit
+- The old large top account panel has been removed
+- Users can update the linked sheet later with **Update Sheet Link**
+- Logout clears local setup and immediately shows onboarding again
+- Apps Script upserts `userId` + sheet metadata (`sheetUrl` / `spreadsheetId`) to the central **User Data** tab
 
 ### 5. Build for production
 
@@ -231,6 +261,9 @@ Apps Script Web App
 Google Sheets (watching / completed / plan / upcoming tabs)
 ```
 
+- Onboarding and sheet-link updates also sync setup metadata (`userId`, `sheetUrl`, `spreadsheetId`) to the central **User Data** tab via Apps Script.
+- During onboarding credentials step, the app tries to resolve an existing user from **User Data**; on success, stored sheet metadata is reused and the sheet-link step is skipped.
+- If existing-user lookup is missing/unavailable, onboarding falls back to the manual sheet-link step.
 - Data is **always** saved to localStorage first — the app works even if Sheets sync fails
 - `mode: 'no-cors'` is required because GAS redirects POST requests cross-origin
 - Drag-drop between columns triggers an `update` sync which moves the row to the correct sheet tab
@@ -244,22 +277,7 @@ Google Sheets (watching / completed / plan / upcoming tabs)
 | `SHEETS_SCRIPT_URL is not set` in console | Add `VITE_SHEETS_SCRIPT_URL` to Vercel env vars and redeploy |
 | Anime saved locally but not in Sheets | Redeploy Apps Script with a new version after code changes |
 | Sheet tab not created | Drag or add an anime to that status — tabs are auto-created on first write |
+| Existing user is still asked for a sheet URL | Verify Apps Script is reachable and **User Data** has matching credentials plus `sheetUrl`/`spreadsheetId`; otherwise onboarding intentionally falls back to manual sheet-link |
+| Logout did not return setup flow | Logout clears local setup (`anime_watchlist_setup_v1`); refresh once if stale UI is cached |
 | `Script properties saved` not showing | Re-run `setupProperties()` and approve all permission prompts |
 | Vercel build failing | Check that all `VITE_*` variables are set in Vercel dashboard |
-
-4. Deploy as a **Web app** and copy the web app URL.
-5. Set frontend env vars:
-   - `VITE_APPS_SCRIPT_URL=<web-app-url>`
-   - `VITE_API_SECRET=<same-shared-secret>`
-
-## Deploying Frontend (Vercel / Netlify)
-
-Both platforms can deploy this app as a static Vite site:
-
-- Build command: `npm run build`
-- Output directory: `dist`
-- Required env vars on platform:
-  - `VITE_APPS_SCRIPT_URL`
-  - `VITE_API_SECRET`
-
-After deploy, redeploy whenever env vars change so Vite can embed updated values.
