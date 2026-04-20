@@ -1,5 +1,6 @@
 import { SHEETS_SCRIPT_URL } from '../utils/constants';
 import { syncAdd, syncUpdate, syncDelete } from './sheetsSync';
+import { buildSheetsLoadUrl, getSetupSyncContext } from './syncContext';
 
 const STORAGE_KEY = 'anime_watchlist_v1';
 
@@ -27,8 +28,18 @@ export async function getAnime() {
   if (!SHEETS_SCRIPT_URL) {
     return { anime: loadList() };
   }
+
+  const syncContext = getSetupSyncContext();
+  if (!syncContext.isComplete) {
+    console.warn(
+      '[AnimeApi] Skipping remote load because setup context is incomplete.',
+      { hasSetup: syncContext.hasSetup, hasUserId: Boolean(syncContext.userId), hasSpreadsheetId: Boolean(syncContext.spreadsheetId) },
+    );
+    return { anime: loadList() };
+  }
+
   try {
-    const res = await fetch(SHEETS_SCRIPT_URL, { method: 'GET' });
+    const res = await fetch(buildSheetsLoadUrl(SHEETS_SCRIPT_URL, syncContext), { method: 'GET' });
     const data = await res.json();
     if (data.success && Array.isArray(data.anime)) {
       // Sort newest first to match the add-to-front behaviour
@@ -38,8 +49,9 @@ export async function getAnime() {
       persist(sorted);
       return { anime: sorted };
     }
-  } catch {
-    // Network error or GAS error — fall back to localStorage silently
+    console.warn('[AnimeApi] Remote load returned an unexpected payload. Falling back to localStorage.');
+  } catch (error) {
+    console.warn('[AnimeApi] Remote load failed. Falling back to localStorage.', error);
   }
   return { anime: loadList() };
 }

@@ -14,16 +14,23 @@ var APP_CONFIG = {
   },
   FIELDS: ['id', 'title', 'status', 'rating', 'notes', 'image', 'createdAt']
 };
+var USER_DATA_CONFIG = {
+  SPREADSHEET_ID: _props.USER_DATA_SPREADSHEET_ID || '1FUMUCFvqhWv8tMufN-q6zshe10DFB0qUaQMba2yrEQM',
+  SHEET_NAME: _props.SHEET_USER_DATA || 'User Data',
+  FIELDS: ['userId', 'username', 'password', 'sheetUrl', 'createdAt', 'updatedAt']
+};
 
 // Run this function ONCE from the Apps Script editor to store your config
 // in Script Properties (equivalent of writing to a .env file).
 function setupProperties() {
   PropertiesService.getScriptProperties().setProperties({
     SPREADSHEET_ID: '1M5h2vyTr3eZmFxTLmW9XoJ-YOOaTexMfhVEaUH_G68M',
+    USER_DATA_SPREADSHEET_ID: '1FUMUCFvqhWv8tMufN-q6zshe10DFB0qUaQMba2yrEQM',
     SHEET_WATCHING:  'watching',
     SHEET_COMPLETED: 'completed',
     SHEET_PLAN:      'plan',
-    SHEET_UPCOMING:  'upcoming'
+    SHEET_UPCOMING:  'upcoming',
+    SHEET_USER_DATA: 'User Data'
   });
   Logger.log('Script properties saved.');
 }
@@ -31,7 +38,10 @@ function setupProperties() {
 // --- HTTP HANDLERS ------------------------------------------------------------
 function doGet(e) {
   try {
-    var anime = getAllAnime_();
+    var queryParams = parseQueryParams_(e);
+    var action = String(queryParams.action || '').toLowerCase();
+    if (action === 'get_user' || action === 'get-user') return handleGetUser_(queryParams);
+    var anime = getAllAnime_(queryParams);
     return jsonResponse_({ success: true, status: 'ok', anime: anime });
   } catch (error) {
     return errorResponse_('INTERNAL_ERROR', error);
@@ -45,6 +55,7 @@ function doPost(e) {
     if (action === 'add')    return handleAdd_(data);
     if (action === 'update') return handleUpdate_(data);
     if (action === 'delete') return handleDelete_(data);
+    if (action === 'setup_user' || action === 'setup-user') return handleSetupUser_(data);
     return jsonResponse_({ success: false, code: 'INVALID_ACTION', message: 'Unknown action: ' + action });
   } catch (error) {
     return errorResponse_('INTERNAL_ERROR', error);
@@ -55,6 +66,7 @@ function doPost(e) {
 function handleAdd_(data) {
   var title = String(data.title || '').trim();
   if (!title) return jsonResponse_({ success: false, code: 'VALIDATION_ERROR', message: 'title is required.' });
+  var context = getRequestContext_(data);
 
   var status = normalizeStatus_(data.status) || 'watching';
   var anime = {
@@ -67,7 +79,7 @@ function handleAdd_(data) {
     createdAt: String(data.createdAt || new Date().toISOString())
   };
 
-  var sheet = getSheetForStatus_(anime.status);
+  var sheet = getSheetForStatus_(anime.status, context.spreadsheet);
   ensureHeaders_(sheet);
   sheet.appendRow(objectToRow_(anime));
   return jsonResponse_({ success: true, status: 'ok', anime: anime });
@@ -76,8 +88,9 @@ function handleAdd_(data) {
 function handleUpdate_(data) {
   var id = String(data.id || '');
   if (!id) return jsonResponse_({ success: false, code: 'VALIDATION_ERROR', message: 'id is required.' });
+  var context = getRequestContext_(data);
 
-  var found = findRowById_(id);
+  var found = findRowById_(id, context.spreadsheet);
   if (!found) return jsonResponse_({ success: false, code: 'NOT_FOUND', message: 'Anime not found: ' + id });
 
   // Merge incoming fields onto existing row � every field is optional
@@ -91,7 +104,7 @@ function handleUpdate_(data) {
     createdAt: found.item.createdAt
   };
 
-  var targetSheet = getSheetForStatus_(updated.status);
+  var targetSheet = getSheetForStatus_(updated.status, context.spreadsheet);
 
   if (found.sheet.getName() === targetSheet.getName()) {
     // Same sheet � update in place
@@ -110,36 +123,100 @@ function handleUpdate_(data) {
 function handleDelete_(data) {
   var id = String(data.id || '');
   if (!id) return jsonResponse_({ success: false, code: 'VALIDATION_ERROR', message: 'id is required.' });
+  var context = getRequestContext_(data);
 
-  var found = findRowById_(id);
+  var found = findRowById_(id, context.spreadsheet);
   if (!found) return jsonResponse_({ success: false, code: 'NOT_FOUND', message: 'Anime not found: ' + id });
 
   found.sheet.deleteRow(found.rowIndex);
   return jsonResponse_({ success: true, status: 'ok' });
 }
 
+function handleSetupUser_(data) {
+  var userId = String(data.userId || '').trim();
+  var username = String(data.username || '').trim();
+  var password = String(data.password || '').trim();
+  var providedSpreadsheetId = String(data.spreadsheetId || '').trim();
+  var providedSheetUrl = String(data.sheetUrl || '').trim();
+
+  if (!userId || !username || !password || (!providedSpreadsheetId && !providedSheetUrl)) {
+    return jsonResponse_({
+      success: false,
+      code: 'VALIDATION_ERROR',
+      message: 'userId, username, password, and sheetUrl or spreadsheetId are required.'
+    });
+  }
+
+  var spreadsheetId = parseSpreadsheetId_(providedSpreadsheetId) || parseSpreadsheetId_(providedSheetUrl);
+  if (!spreadsheetId) {
+    return jsonResponse_({ success: false, code: 'VALIDATION_ERROR', message: 'Invalid sheetUrl/spreadsheetId.' });
+  }
+
+  var spreadsheet;
+  try {
+    spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+  } catch (err) {
+    return jsonResponse_({ success: false, code: 'VALIDATION_ERROR', message: 'Unable to open spreadsheet: ' + spreadsheetId });
+  }
+  ensureStatusSheets_(spreadsheet);
+
+  var userConfig = {
+    userId: userId,
+    username: username,
+    password: password,
+    sheetUrl: normalizeSheetUrl_(providedSheetUrl, spreadsheetId)
+  };
+  var saved = upsertUserData_(userConfig);
+  return jsonResponse_({ success: true, status: 'ok', user: saved });
+}
+
+function handleGetUser_(data) {
+  var username = String(data.username || '').trim();
+  var password = String(data.password || '').trim();
+  if (!username || !password) {
+    return jsonResponse_({
+      success: false,
+      code: 'VALIDATION_ERROR',
+      message: 'username and password are required.'
+    });
+  }
+
+  var user = findUserByCredentials_(username, password);
+  if (!user) {
+    return jsonResponse_({
+      success: false,
+      code: 'NOT_FOUND',
+      message: 'User not found for provided credentials.',
+      user: null
+    });
+  }
+
+  return jsonResponse_({ success: true, status: 'ok', user: user });
+}
+
 // --- SHEET HELPERS ------------------------------------------------------------
-function getAllAnime_() {
+function getAllAnime_(requestData) {
+  var context = getRequestContext_(requestData);
   var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN, APP_CONFIG.SHEETS.UPCOMING];
   var results = [];
   for (var i = 0; i < sheetNames.length; i++) {
-    var sheet = getOrCreateSheet_(sheetNames[i]);
+    var sheet = getOrCreateSheet_(sheetNames[i], context.spreadsheet);
     results = results.concat(sheetRowsToObjects_(sheet));
   }
   return results;
 }
 
-function getSheetForStatus_(status) {
-  if (status === 'completed') return getOrCreateSheet_(APP_CONFIG.SHEETS.COMPLETED);
-  if (status === 'plan')      return getOrCreateSheet_(APP_CONFIG.SHEETS.PLAN);
-  if (status === 'upcoming')  return getOrCreateSheet_(APP_CONFIG.SHEETS.UPCOMING);
-  return                             getOrCreateSheet_(APP_CONFIG.SHEETS.WATCHING);
+function getSheetForStatus_(status, spreadsheet) {
+  if (status === 'completed') return getOrCreateSheet_(APP_CONFIG.SHEETS.COMPLETED, spreadsheet);
+  if (status === 'plan')      return getOrCreateSheet_(APP_CONFIG.SHEETS.PLAN, spreadsheet);
+  if (status === 'upcoming')  return getOrCreateSheet_(APP_CONFIG.SHEETS.UPCOMING, spreadsheet);
+  return                             getOrCreateSheet_(APP_CONFIG.SHEETS.WATCHING, spreadsheet);
 }
 
-function findRowById_(id) {
+function findRowById_(id, spreadsheet) {
   var sheetNames = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN, APP_CONFIG.SHEETS.UPCOMING];
   for (var s = 0; s < sheetNames.length; s++) {
-    var sheet  = getOrCreateSheet_(sheetNames[s]);
+    var sheet  = getOrCreateSheet_(sheetNames[s], spreadsheet);
     var values = sheet.getDataRange().getValues();
     if (values.length <= 1) continue;
     var headerMap = headerIndexMap_(values[0]);
@@ -154,11 +231,116 @@ function findRowById_(id) {
   return null;
 }
 
-function getOrCreateSheet_(name) {
-  var spreadsheet = SpreadsheetApp.openById(APP_CONFIG.SPREADSHEET_ID);
+function getOrCreateSheet_(name, spreadsheet) {
+  spreadsheet = spreadsheet || SpreadsheetApp.openById(APP_CONFIG.SPREADSHEET_ID);
   var sheet = spreadsheet.getSheetByName(name);
   if (!sheet) sheet = spreadsheet.insertSheet(name);
   return sheet;
+}
+
+function getRequestContext_(requestData) {
+  var spreadsheetId = resolveSpreadsheetId_(requestData);
+  var spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+  ensureStatusSheets_(spreadsheet);
+  return {
+    spreadsheetId: spreadsheetId,
+    spreadsheet: spreadsheet
+  };
+}
+
+function ensureStatusSheets_(spreadsheet) {
+  var statuses = [APP_CONFIG.SHEETS.WATCHING, APP_CONFIG.SHEETS.COMPLETED, APP_CONFIG.SHEETS.PLAN, APP_CONFIG.SHEETS.UPCOMING];
+  for (var i = 0; i < statuses.length; i++) {
+    ensureHeaders_(getOrCreateSheet_(statuses[i], spreadsheet));
+  }
+}
+
+// --- USER DATA HELPERS --------------------------------------------------------
+function getUserDataSheet_() {
+  var adminSpreadsheet = SpreadsheetApp.openById(USER_DATA_CONFIG.SPREADSHEET_ID);
+  var sheet = adminSpreadsheet.getSheetByName(USER_DATA_CONFIG.SHEET_NAME);
+  if (!sheet) sheet = adminSpreadsheet.insertSheet(USER_DATA_CONFIG.SHEET_NAME);
+  ensureUserDataHeaders_(sheet);
+  return sheet;
+}
+
+function ensureUserDataHeaders_(sheet) {
+  var fields = USER_DATA_CONFIG.FIELDS;
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(fields);
+    sheet.getRange(1, 1, 1, fields.length).setFontWeight('bold');
+    return;
+  }
+  var lastCol = Math.max(sheet.getLastColumn(), fields.length);
+  var existingRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  if (!headersMatch_(existingRow, fields)) {
+    sheet.getRange(1, 1, 1, fields.length).setValues([fields]).setFontWeight('bold');
+  }
+}
+
+function upsertUserData_(userConfig) {
+  var sheet = getUserDataSheet_();
+  var values = sheet.getDataRange().getValues();
+  var nowIso = new Date().toISOString();
+  var fields = USER_DATA_CONFIG.FIELDS;
+  var rowData = {
+    userId: userConfig.userId,
+    username: userConfig.username,
+    password: userConfig.password,
+    sheetUrl: userConfig.sheetUrl,
+    createdAt: nowIso,
+    updatedAt: nowIso
+  };
+
+  if (values.length > 1) {
+    var headerMap = headerIndexMap_(values[0]);
+    var userIdCol = headerMap.userId;
+    var createdAtCol = headerMap.createdAt;
+    if (userIdCol !== undefined) {
+      for (var r = 1; r < values.length; r++) {
+        if (String(values[r][userIdCol] || '') === String(userConfig.userId)) {
+          rowData.createdAt = createdAtCol !== undefined && values[r][createdAtCol]
+            ? normalizeCreatedAt_(values[r][createdAtCol])
+            : nowIso;
+          sheet.getRange(r + 1, 1, 1, fields.length).setValues([objectToNamedFieldsRow_(rowData, fields)]);
+          return rowData;
+        }
+      }
+    }
+  }
+
+  sheet.appendRow(objectToNamedFieldsRow_(rowData, fields));
+  return rowData;
+}
+
+function findUserByCredentials_(username, password) {
+  var sheet = getUserDataSheetForRead_();
+  if (!sheet) return null;
+
+  var values = sheet.getDataRange().getValues();
+  if (!values || values.length <= 1) return null;
+
+  var headerMap = headerIndexMap_(values[0]);
+  var usernameCol = headerMap.username;
+  var passwordCol = headerMap.password;
+  if (usernameCol === undefined || passwordCol === undefined) return null;
+
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    if (isEmptyRow_(row)) continue;
+    var storedUsername = String(row[usernameCol] || '').trim();
+    var storedPassword = String(row[passwordCol] || '').trim();
+    if (storedUsername === username && storedPassword === password) {
+      return rowToNamedFieldsObject_(row, USER_DATA_CONFIG.FIELDS, headerMap);
+    }
+  }
+
+  return null;
+}
+
+function getUserDataSheetForRead_() {
+  var adminSpreadsheet = SpreadsheetApp.openById(USER_DATA_CONFIG.SPREADSHEET_ID);
+  return adminSpreadsheet.getSheetByName(USER_DATA_CONFIG.SHEET_NAME);
 }
 
 // --- HEADER MANAGEMENT -------------------------------------------------------
@@ -205,6 +387,19 @@ function rowToObject_(row, headerMap) {
     var colIdx = headerMap[field];
     var val    = colIdx !== undefined ? row[colIdx] : '';
     item[field] = field === 'createdAt'
+      ? normalizeCreatedAt_(val)
+      : String(val === null || val === undefined ? '' : val);
+  }
+  return item;
+}
+
+function rowToNamedFieldsObject_(row, fields, headerMap) {
+  var item = {};
+  for (var i = 0; i < fields.length; i++) {
+    var field = fields[i];
+    var colIdx = headerMap[field];
+    var val = colIdx !== undefined ? row[colIdx] : '';
+    item[field] = (field === 'createdAt' || field === 'updatedAt')
       ? normalizeCreatedAt_(val)
       : String(val === null || val === undefined ? '' : val);
   }
@@ -265,6 +460,40 @@ function isEmptyRow_(row) {
     if (String(row[i] || '').trim() !== '') return false;
   }
   return true;
+}
+
+function parseQueryParams_(e) {
+  return (e && e.parameter) ? e.parameter : {};
+}
+
+function resolveSpreadsheetId_(data) {
+  data = data || {};
+  var explicitId = parseSpreadsheetId_(data.spreadsheetId);
+  if (explicitId) return explicitId;
+  return parseSpreadsheetId_(data.sheetUrl) || APP_CONFIG.SPREADSHEET_ID;
+}
+
+function parseSpreadsheetId_(value) {
+  var input = String(value || '').trim();
+  if (!input) return '';
+  if (/^[a-zA-Z0-9-_]{20,}$/.test(input)) return input;
+  var match = input.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return match && match[1] ? match[1] : '';
+}
+
+function normalizeSheetUrl_(sheetUrl, spreadsheetId) {
+  var parsedId = parseSpreadsheetId_(sheetUrl);
+  var finalId = parsedId || String(spreadsheetId || '').trim();
+  return finalId ? ('https://docs.google.com/spreadsheets/d/' + finalId) : '';
+}
+
+function objectToNamedFieldsRow_(item, fields) {
+  var row = [];
+  for (var i = 0; i < fields.length; i++) {
+    var v = item[fields[i]];
+    row.push(v !== undefined && v !== null ? v : '');
+  }
+  return row;
 }
 
 function jsonResponse_(payload) {

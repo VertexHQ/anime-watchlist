@@ -1,4 +1,5 @@
 import { SHEETS_SCRIPT_URL } from '../utils/constants';
+import { getSetupSyncContext, withSyncContext } from './syncContext';
 
 /**
  * Fire-and-forget POST to the Apps Script web app.
@@ -11,12 +12,23 @@ function post(payload) {
     console.warn('[SheetsSync] SHEETS_SCRIPT_URL is not set in constants.js — Google Sheets sync is disabled.');
     return;
   }
-  console.log('[SheetsSync] Syncing:', payload.action, payload.title || payload.id || '');
+
+  const syncContext = getSetupSyncContext();
+  if (!syncContext.isComplete) {
+    console.warn(
+      '[SheetsSync] Skipping remote sync because setup context is incomplete.',
+      { hasSetup: syncContext.hasSetup, hasUserId: Boolean(syncContext.userId), hasSpreadsheetId: Boolean(syncContext.spreadsheetId), action: payload.action },
+    );
+    return;
+  }
+
+  const body = withSyncContext(payload, syncContext);
+  console.log('[SheetsSync] Syncing:', body.action, body.title || body.id || '');
   fetch(SHEETS_SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   }).then(() => {
     console.log('[SheetsSync] Request sent (no-cors — response is opaque).');
   }).catch((err) => {

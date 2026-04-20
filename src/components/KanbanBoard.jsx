@@ -70,7 +70,7 @@ export default function KanbanBoard() {
       {/* Board header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white glow-text">My Watchlist</h1>
+          <h1 className="text-2xl font-bold glow-text">My Watchlist</h1>
           <p className="mt-0.5 text-sm text-purple-400/60">
             {anime.length} {anime.length === 1 ? 'anime' : 'anime'} tracked — drag cards between columns to update status
           </p>
