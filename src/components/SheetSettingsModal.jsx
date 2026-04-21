@@ -16,46 +16,13 @@ const COPY = {
     save: 'Save link',
     saving: 'Saving...',
   },
-  bn: {
-    title: 'Google Sheet Link আপডেট করুন',
-    subtitle: 'শিটটি "Anyone with the link" এবং edit permission সহ শেয়ার করা আছে কিনা নিশ্চিত করুন।',
-    tabsLabel: 'অ্যাপে ব্যবহৃত/তৈরি হওয়া ট্যাব:',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    invalidSheet: 'সঠিক Google Sheet URL বা spreadsheet ID দিন।',
-    cancel: 'বাতিল',
-    save: 'লিংক সেভ করুন',
-    saving: 'সেভ হচ্ছে...',
-  },
-  hi: {
-    title: 'Google Sheet लिंक अपडेट करें',
-    subtitle: 'सुनिश्चित करें कि शीट "Anyone with the link" और edit अनुमति के साथ शेयर है।',
-    tabsLabel: 'ऐप द्वारा उपयोग/बनाए जाने वाले टैब:',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    invalidSheet: 'कृपया सही Google Sheet URL या spreadsheet ID दर्ज करें।',
-    cancel: 'रद्द करें',
-    save: 'लिंक सेव करें',
-    saving: 'सेव हो रहा है...',
-  },
-  gu: {
-    title: 'Google Sheet લિંક અપડેટ કરો',
-    subtitle: 'ખાતરી કરો કે શીટ "Anyone with the link" અને edit permission સાથે શેર છે.',
-    tabsLabel: 'એપ દ્વારા ઉપયોગ/તૈયાર થતા ટેબ:',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    invalidSheet: 'કૃપા કરીને માન્ય Google Sheet URL અથવા spreadsheet ID દાખલ કરો.',
-    cancel: 'રદ કરો',
-    save: 'લિંક સેવ કરો',
-    saving: 'સેવ થઈ રહ્યું છે...',
-  },
 };
 
 export default function SheetSettingsModal({ currentSheetUrl = '', language = 'en', onClose, onSave }) {
   const [sheetUrl, setSheetUrl] = useState(currentSheetUrl);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const copy = COPY[language] || COPY.en;
+  const copy = COPY.en;
 
   const requiredTabsText = useMemo(
     () => [

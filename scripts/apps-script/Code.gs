@@ -35,6 +35,31 @@ function setupProperties() {
   Logger.log('Script properties saved.');
 }
 
+// Run this from the Apps Script editor to verify login works.
+// Change USERNAME and PASSWORD to match a row in your User Data sheet.
+function testLogin() {
+  var USERNAME = 'salimuddin07'; // change this
+  var PASSWORD = 'yourpassword'; // change this
+
+  var user = findUserByCredentials_(USERNAME, PASSWORD);
+  if (user) {
+    Logger.log('LOGIN OK: ' + JSON.stringify(user));
+  } else {
+    Logger.log('LOGIN FAILED: user not found for username="' + USERNAME + '"');
+    // Show all stored usernames for debugging
+    var sheet = getUserDataSheetForRead_();
+    if (sheet) {
+      var values = sheet.getDataRange().getValues();
+      Logger.log('Rows in User Data sheet: ' + (values.length - 1));
+      var headerMap = headerIndexMap_(values[0]);
+      var usernameCol = headerMap.username;
+      for (var r = 1; r < values.length; r++) {
+        Logger.log('  row ' + r + ' username="' + String(values[r][usernameCol] || '') + '"');
+      }
+    }
+  }
+}
+
 // --- HTTP HANDLERS ------------------------------------------------------------
 function doGet(e) {
   try {
@@ -330,7 +355,7 @@ function findUserByCredentials_(username, password) {
     if (isEmptyRow_(row)) continue;
     var storedUsername = String(row[usernameCol] || '').trim();
     var storedPassword = String(row[passwordCol] || '').trim();
-    if (storedUsername === username && storedPassword === password) {
+    if (storedUsername.toLowerCase() === username.toLowerCase() && storedPassword === password) {
       return rowToNamedFieldsObject_(row, USER_DATA_CONFIG.FIELDS, headerMap);
     }
   }

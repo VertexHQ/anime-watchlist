@@ -16,7 +16,6 @@ const COPY = {
   en: {
     welcomeTitle: 'Welcome to Anime Watchlist',
     welcomeDescription: 'Complete this first-time setup to start using your board.',
-    languageLabel: 'Language',
     usernameLabel: 'Username',
     usernamePlaceholder: 'e.g. salimuddin07',
     passwordLabel: 'Password',
@@ -29,6 +28,7 @@ const COPY = {
     savingButton: 'Saving...',
     checkingUserMessage: 'Checking if this account already has a saved sheet...',
     existingUserFoundMessage: 'Account found with a saved sheet. Finishing setup now...',
+    lookupErrorMessage: 'Could not connect to check your account. Please try again.',
     beforeSavingTitle: 'Before saving:',
     beforeSavingShare: 'Share your Google Sheet as "Anyone with the link" with edit access.',
     beforeSavingTabs: 'The app will use/create these tabs:',
@@ -38,156 +38,26 @@ const COPY = {
     passwordRequired: 'Password is required.',
     sheetUrlRequired: 'A valid Google Sheet link is required.',
     steps: {
-      language: {
-        badge: 'Language',
-        title: 'Step 1: Choose your language',
-        description: 'Pick your preferred app language for this device.',
-      },
       credentials: {
         badge: 'Login',
-        title: 'Step 1: Enter your account details',
-        description: 'This login-style form keeps your username/password setup in one place.',
+        title: 'Enter your account details',
+        description: 'Enter your username and password to sign in or create a new setup.',
       },
       sheetLink: {
         badge: 'Sheet Link',
-        title: 'Step 2: Connect your Google Sheet',
+        title: 'Connect your Google Sheet',
         description: 'Paste your spreadsheet URL so your watchlist can stay linked.',
-      },
-    },
-  },
-  bn: {
-    welcomeTitle: 'Anime Watchlist-এ স্বাগতম',
-    welcomeDescription: 'বোর্ড ব্যবহার শুরু করার জন্য এই প্রথমবারের সেটআপ সম্পন্ন করুন।',
-    languageLabel: 'ভাষা',
-    usernameLabel: 'ইউজারনেম',
-    usernamePlaceholder: 'যেমন: salimuddin07',
-    passwordLabel: 'পাসওয়ার্ড',
-    passwordPlaceholder: 'আপনার পাসওয়ার্ড দিন',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'পেছনে',
-    continueButton: 'পরবর্তী',
-    saveButton: 'সেটআপ সেভ করে চালিয়ে যান',
-    savingButton: 'সেভ হচ্ছে...',
-    checkingUserMessage: 'এই অ্যাকাউন্টে আগে থেকেই শিট আছে কিনা দেখা হচ্ছে...',
-    existingUserFoundMessage: 'অ্যাকাউন্ট পাওয়া গেছে এবং শিট সংযুক্ত আছে। সেটআপ সম্পন্ন করা হচ্ছে...',
-    beforeSavingTitle: 'সেভ করার আগে:',
-    beforeSavingShare: 'Google Sheet-টি "Anyone with the link" এবং edit access দিয়ে শেয়ার করুন।',
-    beforeSavingTabs: 'অ্যাপ এই ট্যাবগুলো ব্যবহার/তৈরি করবে:',
-    beforeSavingUrl: 'সম্পূর্ণ sheet URL (নিচে টেমপ্লেট আছে) অথবা spreadsheet ID দিন।',
-    templateTitle: 'উদাহরণ/টেমপ্লেট URL',
-    usernameRequired: 'ইউজারনেম আবশ্যক।',
-    passwordRequired: 'পাসওয়ার্ড আবশ্যক।',
-    sheetUrlRequired: 'সঠিক Google Sheet লিংক দিন।',
-    steps: {
-      language: {
-        badge: 'ভাষা',
-        title: 'ধাপ ১: আপনার ভাষা বেছে নিন',
-        description: 'এই ডিভাইসের জন্য পছন্দের অ্যাপ ভাষা নির্বাচন করুন।',
-      },
-      credentials: {
-        badge: 'লগইন',
-        title: 'ধাপ ১: আপনার অ্যাকাউন্ট তথ্য দিন',
-        description: 'এই login-style ফর্মে আপনার username/password রাখা হবে।',
-      },
-      sheetLink: {
-        badge: 'শিট লিংক',
-        title: 'ধাপ ২: আপনার Google Sheet সংযোগ করুন',
-        description: 'আপনার spreadsheet URL দিন যাতে watchlist সংযুক্ত থাকে।',
-      },
-    },
-  },
-  hi: {
-    welcomeTitle: 'Anime Watchlist में आपका स्वागत है',
-    welcomeDescription: 'बोर्ड का उपयोग शुरू करने के लिए यह पहली बार वाला सेटअप पूरा करें।',
-    languageLabel: 'भाषा',
-    usernameLabel: 'यूज़रनेम',
-    usernamePlaceholder: 'उदा.: salimuddin07',
-    passwordLabel: 'पासवर्ड',
-    passwordPlaceholder: 'अपना पासवर्ड दर्ज करें',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'पीछे',
-    continueButton: 'आगे बढ़ें',
-    saveButton: 'सेटअप सेव करें और जारी रखें',
-    savingButton: 'सेव हो रहा है...',
-    checkingUserMessage: 'जांच हो रही है कि इस अकाउंट में पहले से सेव की हुई शीट है या नहीं...',
-    existingUserFoundMessage: 'अकाउंट मिला और शीट जुड़ी हुई है। सेटअप पूरा किया जा रहा है...',
-    beforeSavingTitle: 'सेव करने से पहले:',
-    beforeSavingShare: 'Google Sheet को "Anyone with the link" और edit access के साथ शेयर करें।',
-    beforeSavingTabs: 'ऐप इन टैब्स का उपयोग/निर्माण करेगा:',
-    beforeSavingUrl: 'पूरा sheet URL (नीचे टेम्पलेट दिया है) या spreadsheet ID दर्ज करें।',
-    templateTitle: 'उदाहरण/टेम्पलेट URL',
-    usernameRequired: 'यूज़रनेम आवश्यक है।',
-    passwordRequired: 'पासवर्ड आवश्यक है।',
-    sheetUrlRequired: 'कृपया सही Google Sheet लिंक दर्ज करें।',
-    steps: {
-      language: {
-        badge: 'भाषा',
-        title: 'चरण 1: अपनी भाषा चुनें',
-        description: 'इस डिवाइस के लिए अपनी पसंदीदा ऐप भाषा चुनें।',
-      },
-      credentials: {
-        badge: 'लॉगिन',
-        title: 'चरण 1: अपने अकाउंट की जानकारी दें',
-        description: 'यह login-style फ़ॉर्म आपके username/password सेटअप को एक जगह रखता है।',
-      },
-      sheetLink: {
-        badge: 'शीट लिंक',
-        title: 'चरण 2: अपनी Google Sheet कनेक्ट करें',
-        description: 'अपनी spreadsheet URL दें ताकि आपकी watchlist जुड़ी रहे।',
-      },
-    },
-  },
-  gu: {
-    welcomeTitle: 'Anime Watchlist માં આપનું સ્વાગત છે',
-    welcomeDescription: 'તમારો બોર્ડ ઉપયોગમાં લેવા માટે આ પ્રથમ સેટઅપ પૂર્ણ કરો.',
-    languageLabel: 'ભાષા',
-    usernameLabel: 'યુઝરનેમ',
-    usernamePlaceholder: 'જેમ કે: salimuddin07',
-    passwordLabel: 'પાસવર્ડ',
-    passwordPlaceholder: 'તમારો પાસવર્ડ દાખલ કરો',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'પાછળ',
-    continueButton: 'આગળ વધો',
-    saveButton: 'સેટઅપ સેવ કરો અને આગળ વધો',
-    savingButton: 'સેવ થઈ રહ્યું છે...',
-    checkingUserMessage: 'આ એકાઉન્ટમાં પહેલેથી સેવ કરેલી શીટ છે કે નહીં તે તપાસી રહ્યા છીએ...',
-    existingUserFoundMessage: 'એકાઉન્ટ મળી ગયું અને શીટ જોડાયેલ છે. સેટઅપ પૂર્ણ થઈ રહ્યું છે...',
-    beforeSavingTitle: 'સેવ કરતા પહેલા:',
-    beforeSavingShare: 'Google Sheet ને "Anyone with the link" અને edit access સાથે શેર કરો.',
-    beforeSavingTabs: 'એપ આ ટેબ્સનો ઉપયોગ/બનાવશે:',
-    beforeSavingUrl: 'પૂર્ણ sheet URL (નીચે ટેમ્પલેટ બતાવ્યું છે) અથવા spreadsheet ID દાખલ કરો.',
-    templateTitle: 'ઉદાહરણ/ટેમ્પલેટ URL',
-    usernameRequired: 'યુઝરનેમ જરૂરી છે.',
-    passwordRequired: 'પાસવર્ડ જરૂરી છે.',
-    sheetUrlRequired: 'કૃપા કરીને માન્ય Google Sheet લિંક દાખલ કરો.',
-    steps: {
-      language: {
-        badge: 'ભાષા',
-        title: 'પગલું 1: તમારી ભાષા પસંદ કરો',
-        description: 'આ ડિવાઇસ માટે તમારી પસંદગીની એપ ભાષા પસંદ કરો.',
-      },
-      credentials: {
-        badge: 'લોગિન',
-        title: 'પગલું 1: તમારા એકાઉન્ટની વિગતો દાખલ કરો',
-        description: 'આ login-style ફોર્મ તમારા username/password સેટઅપને એક જ જગ્યાએ રાખે છે.',
-      },
-      sheetLink: {
-        badge: 'શીટ લિંક',
-        title: 'પગલું 2: તમારી Google Sheet જોડો',
-        description: 'તમારી spreadsheet URL દાખલ કરો જેથી તમારી watchlist જોડાયેલી રહે.',
       },
     },
   },
 };
 
+
 const TEMPLATE_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890/edit#gid=0';
 
-function getCopy(language) {
-  return COPY[language] || COPY.en;
+function getCopy() {
+  return COPY.en;
 }
 
 function toInitialForm(initialValues) {
@@ -205,43 +75,53 @@ function toCleanString(value) {
   return String(value ?? '').trim();
 }
 
+// Returns { status: 'found', data } | { status: 'not_found' } | { status: 'error' } | { status: 'no_sync' }
 async function findExistingUserSetup(username, password) {
-  if (!SHEETS_SCRIPT_URL) return null;
+  if (!SHEETS_SCRIPT_URL) return { status: 'no_sync' };
 
   const cleanUsername = toCleanString(username);
   const cleanPassword = toCleanString(password);
-  if (!cleanUsername || !cleanPassword) return null;
+  if (!cleanUsername || !cleanPassword) return { status: 'no_sync' };
 
   let requestUrl = '';
   try {
     const url = new URL(SHEETS_SCRIPT_URL);
     url.searchParams.set('action', 'get_user');
-    url.searchParams.set('username', cleanUsername);
+    url.searchParams.set('username', cleanUsername.toLowerCase());
     url.searchParams.set('password', cleanPassword);
     requestUrl = url.toString();
   } catch {
-    return null;
+    return { status: 'error' };
   }
 
   try {
     const response = await fetch(requestUrl, { method: 'GET' });
-    if (!response.ok) return null;
+    if (!response.ok) return { status: 'error' };
 
     const payload = await response.json();
+    if (!payload.success) {
+      return payload.code === 'NOT_FOUND'
+        ? { status: 'not_found' }
+        : { status: 'error' };
+    }
+
     const user = payload?.user;
-    if (!user) return null;
+    if (!user) return { status: 'not_found' };
 
     const spreadsheetId = parseSpreadsheetId(user.spreadsheetId || user.sheetUrl);
-    if (!spreadsheetId) return null;
+    if (!spreadsheetId) return { status: 'not_found' };
 
     return {
-      userId: toCleanString(user.userId),
-      sheetUrl: toCleanString(user.sheetUrl),
-      spreadsheetId,
-      language: toCleanString(user.language).toLowerCase(),
+      status: 'found',
+      data: {
+        userId: toCleanString(user.userId),
+        sheetUrl: toCleanString(user.sheetUrl),
+        spreadsheetId,
+        language: toCleanString(user.language).toLowerCase(),
+      },
     };
   } catch {
-    return null;
+    return { status: 'error' };
   }
 }
 
@@ -251,7 +131,7 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState({ text: '', tone: 'info' });
-  const copy = getCopy(formData.language);
+  const copy = getCopy();
 
   useEffect(() => {
     const initialLanguage = normalizeSetupPayload(initialValues || {}).language || DEFAULT_LANGUAGE;
@@ -332,15 +212,15 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
       setSubmitting(true);
       setStatusMessage({ text: copy.checkingUserMessage, tone: 'info' });
       try {
-        const existingUser = await findExistingUserSetup(formData.username, formData.password);
-        if (existingUser) {
+        const result = await findExistingUserSetup(formData.username, formData.password);
+        if (result.status === 'found') {
           setStatusMessage({ text: copy.existingUserFoundMessage, tone: 'success' });
           const normalized = normalizeSetupPayload({
             ...formData,
-            userId: existingUser.userId,
-            sheetUrl: existingUser.sheetUrl || existingUser.spreadsheetId,
-            spreadsheetId: existingUser.spreadsheetId,
-            language: formData.language || existingUser.language || DEFAULT_LANGUAGE,
+            userId: result.data.userId,
+            sheetUrl: result.data.sheetUrl || result.data.spreadsheetId,
+            spreadsheetId: result.data.spreadsheetId,
+            language: formData.language || result.data.language || DEFAULT_LANGUAGE,
           });
           await new Promise((resolve) => {
             setTimeout(resolve, 300);
@@ -348,10 +228,15 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
           await Promise.resolve(onComplete?.(normalized));
           return;
         }
+        if (result.status === 'error') {
+          setStatusMessage({ text: copy.lookupErrorMessage, tone: 'error' });
+          return;
+        }
       } finally {
         setSubmitting(false);
       }
 
+      // status === 'not_found' or 'no_sync': new user, proceed to Sheet URL step
       setStatusMessage({ text: '', tone: 'info' });
       setCurrentStepIndex((prev) => prev + 1);
       return;
@@ -414,7 +299,9 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
               className={`mt-3 rounded-md border p-3 text-sm ${
                 statusMessage.tone === 'success'
                   ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-100'
-                  : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-100'
+                  : statusMessage.tone === 'error'
+                    ? 'border-rose-500/40 bg-rose-500/10 text-rose-100'
+                    : 'border-cyan-500/40 bg-cyan-500/10 text-cyan-100'
               }`}
             >
               {statusMessage.text}
@@ -426,9 +313,13 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
               <label className="text-sm text-purple-200/90">
                 {copy.usernameLabel}
                 <input
+                  autoCapitalize="none"
+                  autoComplete="username"
+                  autoCorrect="off"
                   className={`${INPUT_CLASS} mt-1`}
                   onChange={(event) => updateField('username', event.target.value)}
                   placeholder={copy.usernamePlaceholder}
+                  spellCheck={false}
                   type="text"
                   value={formData.username}
                 />
