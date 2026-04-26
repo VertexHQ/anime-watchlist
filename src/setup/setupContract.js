@@ -20,9 +20,6 @@ export const SETUP_STEP_ORDER = Object.freeze([
 
 export const SUPPORTED_LANGUAGES = Object.freeze([
   Object.freeze({ code: 'en', label: 'English' }),
-  Object.freeze({ code: 'bn', label: 'বাংলা' }),
-  Object.freeze({ code: 'hi', label: 'हिन्दी' }),
-  Object.freeze({ code: 'gu', label: 'ગુજરાતી' }),
 ]);
 
 export const DEFAULT_LANGUAGE = SUPPORTED_LANGUAGES[0].code;

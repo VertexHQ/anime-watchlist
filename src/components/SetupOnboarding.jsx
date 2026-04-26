@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import {
-  SHEETS_SCRIPT_URL,
+  DEFAULT_LANGUAGE,
   REQUIRED_SHEET_TABS,
   SETUP_STEPS,
+  SHEETS_SCRIPT_URL,
   normalizeSetupPayload,
   parseSpreadsheetId,
   validateSetupPayload,
@@ -13,46 +14,41 @@ const INPUT_CLASS =
 
 const COPY = {
   welcomeTitle: 'Welcome to Anime Watchlist',
-    welcomeDescription: 'Complete this first-time setup to start using your board.',
-    languageLabel: 'Language',
-    usernameLabel: 'Username',
-    usernamePlaceholder: 'e.g. salimuddin07',
-    passwordLabel: 'Password',
-    passwordPlaceholder: 'Enter your password',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'Back',
-    continueButton: 'Continue',
-    saveButton: 'Save setup & continue',
-    savingButton: 'Saving...',
-    checkingUserMessage: 'Checking if this account already has a saved sheet...',
-    existingUserFoundMessage: 'Account found with a saved sheet. Finishing setup now...',
-    beforeSavingTitle: 'Before saving:',
-    beforeSavingShare: 'Share your Google Sheet as "Anyone with the link" with edit access.',
-    beforeSavingTabs: 'The app will use/create these tabs:',
-    beforeSavingUrl: 'Paste the full sheet URL (template shown below) or spreadsheet ID.',
-    templateTitle: 'Example/template URL',
-    usernameRequired: 'Username is required.',
-    passwordRequired: 'Password is required.',
-    sheetUrlRequired: 'A valid Google Sheet link is required.',
-    checkingSheetMessage: 'Verifying editor access to your sheet...',
-    sheetAccessDenied: 'This sheet is not accessible with edit access. Open the sheet → Share → change to "Anyone with the link" → Editor, then try again.',
-    steps: {
-      credentials: {
-        badge: 'Login',
-        title: 'Step 1: Enter your account details',
-        description: 'This login-style form keeps your username/password setup in one place.',
-      },
-      sheetLink: {
-        badge: 'Sheet Link',
-        title: 'Step 2: Connect your Google Sheet',
-        description: 'Paste your spreadsheet URL so your watchlist can stay linked.',
-      },
+  welcomeDescription: 'Complete this first-time setup to start using your board.',
+  usernameLabel: 'Username',
+  usernamePlaceholder: 'e.g. salimuddin07',
+  passwordLabel: 'Password',
+  passwordPlaceholder: 'Enter your password',
+  sheetUrlLabel: 'Google Sheet URL',
+  sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
+  backButton: 'Back',
+  continueButton: 'Continue',
+  saveButton: 'Save setup & continue',
+  savingButton: 'Saving...',
+  checkingUserMessage: 'Checking if this account already has a saved sheet...',
+  existingUserFoundMessage: 'Account found with a saved sheet. Finishing setup now...',
+  beforeSavingTitle: 'Before saving:',
+  beforeSavingShare: 'Share your Google Sheet as "Anyone with the link" with edit access.',
+  beforeSavingTabs: 'The app will use/create these tabs:',
+  beforeSavingUrl: 'Paste the full sheet URL (template shown below) or spreadsheet ID.',
+  templateTitle: 'Example/template URL',
+  usernameRequired: 'Username is required.',
+  passwordRequired: 'Password is required.',
+  sheetUrlRequired: 'A valid Google Sheet link is required.',
+  checkingSheetMessage: 'Verifying editor access to your sheet...',
+  sheetAccessDenied: 'This sheet is not accessible with edit access. Open the sheet -> Share -> change to "Anyone with the link" -> Editor, then try again.',
+  steps: {
+    credentials: {
+      badge: 'Login',
+      title: 'Step 1: Enter your account details',
+      description: 'This login-style form keeps your username/password setup in one place.',
+    },
+    sheetLink: {
+      badge: 'Sheet Link',
+      title: 'Step 2: Connect your Google Sheet',
+      description: 'Paste your spreadsheet URL so your watchlist can stay linked.',
     },
   },
-  bn: {
-    welcomeTitle: 'Anime Watchlist-এ স্বাগতম',
-    welcomeDescription: 'বোর্ড ব্যবহার শুরু করার জন্য এই প্রথমবারের সেটআপ সম্পন্ন করুন।',
 };
 
 const TEMPLATE_SHEET_URL =
@@ -62,160 +58,6 @@ function toInitialForm(initialValues) {
   const normalized = normalizeSetupPayload(initialValues || {});
 
   return {
-    username: normalized.username || '',
-    password: normalized.password || '',
-    sheetUrl: normalized.sheetUrl || '',
-  };
-}
-
-function toCleanString(value) {
-  return String(value ?? '').trim();
-}
-
-async function checkSheetAccess(spreadsheetId) {
-  if (!SHEETS_SCRIPT_URL) return { ok: true };
-    usernameLabel: 'ইউজারনেম',
-    usernamePlaceholder: 'যেমন: salimuddin07',
-    passwordLabel: 'পাসওয়ার্ড',
-    passwordPlaceholder: 'আপনার পাসওয়ার্ড দিন',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'পেছনে',
-    continueButton: 'পরবর্তী',
-    saveButton: 'সেটআপ সেভ করে চালিয়ে যান',
-    savingButton: 'সেভ হচ্ছে...',
-    checkingUserMessage: 'এই অ্যাকাউন্টে আগে থেকেই শিট আছে কিনা দেখা হচ্ছে...',
-    existingUserFoundMessage: 'অ্যাকাউন্ট পাওয়া গেছে এবং শিট সংযুক্ত আছে। সেটআপ সম্পন্ন করা হচ্ছে...',
-    beforeSavingTitle: 'সেভ করার আগে:',
-    beforeSavingShare: 'Google Sheet-টি "Anyone with the link" এবং edit access দিয়ে শেয়ার করুন।',
-    beforeSavingTabs: 'অ্যাপ এই ট্যাবগুলো ব্যবহার/তৈরি করবে:',
-    beforeSavingUrl: 'সম্পূর্ণ sheet URL (নিচে টেমপ্লেট আছে) অথবা spreadsheet ID দিন।',
-    templateTitle: 'উদাহরণ/টেমপ্লেট URL',
-    usernameRequired: 'ইউজারনেম আবশ্যক।',
-    passwordRequired: 'পাসওয়ার্ড আবশ্যক।',
-    sheetUrlRequired: 'সঠিক Google Sheet লিংক দিন।',
-    checkingSheetMessage: 'আপনার শিটে এডিটর অ্যাক্সেস যাচাই করা হচ্ছে...',
-    sheetAccessDenied: 'এই শিটে এডিট অ্যাক্সেস নেই। শিট খুলুন → Share → "Anyone with the link" → Editor করুন, তারপর আবার চেষ্টা করুন।',
-    steps: {
-      language: {
-        badge: 'ভাষা',
-        title: 'ধাপ ১: আপনার ভাষা বেছে নিন',
-        description: 'এই ডিভাইসের জন্য পছন্দের অ্যাপ ভাষা নির্বাচন করুন।',
-      },
-      credentials: {
-        badge: 'লগইন',
-        title: 'ধাপ ১: আপনার অ্যাকাউন্ট তথ্য দিন',
-        description: 'এই login-style ফর্মে আপনার username/password রাখা হবে।',
-      },
-      sheetLink: {
-        badge: 'শিট লিংক',
-        title: 'ধাপ ২: আপনার Google Sheet সংযোগ করুন',
-        description: 'আপনার spreadsheet URL দিন যাতে watchlist সংযুক্ত থাকে।',
-      },
-    },
-  },
-  hi: {
-    welcomeTitle: 'Anime Watchlist में आपका स्वागत है',
-    welcomeDescription: 'बोर्ड का उपयोग शुरू करने के लिए यह पहली बार वाला सेटअप पूरा करें।',
-    languageLabel: 'भाषा',
-    usernameLabel: 'यूज़रनेम',
-    usernamePlaceholder: 'उदा.: salimuddin07',
-    passwordLabel: 'पासवर्ड',
-    passwordPlaceholder: 'अपना पासवर्ड दर्ज करें',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'पीछे',
-    continueButton: 'आगे बढ़ें',
-    saveButton: 'सेटअप सेव करें और जारी रखें',
-    savingButton: 'सेव हो रहा है...',
-    checkingUserMessage: 'जांच हो रही है कि इस अकाउंट में पहले से सेव की हुई शीट है या नहीं...',
-    existingUserFoundMessage: 'अकाउंट मिला और शीट जुड़ी हुई है। सेटअप पूरा किया जा रहा है...',
-    beforeSavingTitle: 'सेव करने से पहले:',
-    beforeSavingShare: 'Google Sheet को "Anyone with the link" और edit access के साथ शेयर करें।',
-    beforeSavingTabs: 'ऐप इन टैब्स का उपयोग/निर्माण करेगा:',
-    beforeSavingUrl: 'पूरा sheet URL (नीचे टेम्पलेट दिया है) या spreadsheet ID दर्ज करें।',
-    templateTitle: 'उदाहरण/टेम्पलेट URL',
-    usernameRequired: 'यूज़रनेम आवश्यक है।',
-    passwordRequired: 'पासवर्ड आवश्यक है।',
-    sheetUrlRequired: 'कृपया सही Google Sheet लिंक दर्ज करें।',
-    checkingSheetMessage: 'आपकी शीट पर एडिटर एक्सेस जाँची जा रही है...',
-    sheetAccessDenied: 'इस शीट पर एडिट एक्सेस नहीं है। शीट खोलें → Share → "Anyone with the link" → Editor करें, फिर दोबारा कोशिश करें।',
-    steps: {
-      language: {
-        badge: 'भाषा',
-        title: 'चरण 1: अपनी भाषा चुनें',
-        description: 'इस डिवाइस के लिए अपनी पसंदीदा ऐप भाषा चुनें।',
-      },
-      credentials: {
-        badge: 'लॉगिन',
-        title: 'चरण 1: अपने अकाउंट की जानकारी दें',
-        description: 'यह login-style फ़ॉर्म आपके username/password सेटअप को एक जगह रखता है।',
-      },
-      sheetLink: {
-        badge: 'शीट लिंक',
-        title: 'चरण 2: अपनी Google Sheet कनेक्ट करें',
-        description: 'अपनी spreadsheet URL दें ताकि आपकी watchlist जुड़ी रहे।',
-      },
-    },
-  },
-  gu: {
-    welcomeTitle: 'Anime Watchlist માં આપનું સ્વાગત છે',
-    welcomeDescription: 'તમારો બોર્ડ ઉપયોગમાં લેવા માટે આ પ્રથમ સેટઅપ પૂર્ણ કરો.',
-    languageLabel: 'ભાષા',
-    usernameLabel: 'યુઝરનેમ',
-    usernamePlaceholder: 'જેમ કે: salimuddin07',
-    passwordLabel: 'પાસવર્ડ',
-    passwordPlaceholder: 'તમારો પાસવર્ડ દાખલ કરો',
-    sheetUrlLabel: 'Google Sheet URL',
-    sheetUrlPlaceholder: 'https://docs.google.com/spreadsheets/d/...',
-    backButton: 'પાછળ',
-    continueButton: 'આગળ વધો',
-    saveButton: 'સેટઅપ સેવ કરો અને આગળ વધો',
-    savingButton: 'સેવ થઈ રહ્યું છે...',
-    checkingUserMessage: 'આ એકાઉન્ટમાં પહેલેથી સેવ કરેલી શીટ છે કે નહીં તે તપાસી રહ્યા છીએ...',
-    existingUserFoundMessage: 'એકાઉન્ટ મળી ગયું અને શીટ જોડાયેલ છે. સેટઅપ પૂર્ણ થઈ રહ્યું છે...',
-    beforeSavingTitle: 'સેવ કરતા પહેલા:',
-    beforeSavingShare: 'Google Sheet ને "Anyone with the link" અને edit access સાથે શેર કરો.',
-    beforeSavingTabs: 'એપ આ ટેબ્સનો ઉપયોગ/બનાવશે:',
-    beforeSavingUrl: 'પૂર્ણ sheet URL (નીચે ટેમ્પલેટ બતાવ્યું છે) અથવા spreadsheet ID દાખલ કરો.',
-    templateTitle: 'ઉદાહરણ/ટેમ્પલેટ URL',
-    usernameRequired: 'યુઝરનેમ જરૂરી છે.',
-    passwordRequired: 'પાસવર્ડ જરૂરી છે.',
-    sheetUrlRequired: 'કૃપા કરીને માન્ય Google Sheet લિંક દાખલ કરો.',
-    checkingSheetMessage: 'તમારી શીટ પર એડિટર એક્સેસ ચકાસવામાં આવી રહ્યું છે...',
-    sheetAccessDenied: 'આ શીટ પર એડિટ એક્સેસ નથી. શીટ ખોલો → Share → "Anyone with the link" → Editor કરો, પછી ફરી પ્રયાસ કરો.',
-    steps: {
-      language: {
-        badge: 'ભાષા',
-        title: 'પગલું 1: તમારી ભાષા પસંદ કરો',
-        description: 'આ ડિવાઇસ માટે તમારી પસંદગીની એપ ભાષા પસંદ કરો.',
-      },
-      credentials: {
-        badge: 'લોગિન',
-        title: 'પગલું 1: તમારા એકાઉન્ટની વિગતો દાખલ કરો',
-        description: 'આ login-style ફોર્મ તમારા username/password સેટઅપને એક જ જગ્યાએ રાખે છે.',
-      },
-      sheetLink: {
-        badge: 'શીટ લિંક',
-        title: 'પગલું 2: તમારી Google Sheet જોડો',
-        description: 'તમારી spreadsheet URL દાખલ કરો જેથી તમારી watchlist જોડાયેલી રહે.',
-      },
-    },
-  },
-};
-
-const TEMPLATE_SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz1234567890/edit#gid=0';
-
-function getCopy() {
-  return COPY;
-}
-
-function toInitialForm(initialValues) {
-  const normalized = normalizeSetupPayload(initialValues || {});
-
-  return {
-    language: 'en',
     username: normalized.username || '',
     password: normalized.password || '',
     sheetUrl: normalized.sheetUrl || '',
@@ -274,7 +116,6 @@ async function findExistingUserSetup(username, password) {
       userId: toCleanString(user.userId),
       sheetUrl: toCleanString(user.sheetUrl),
       spreadsheetId,
-      language: toCleanString(user.language).toLowerCase(),
     };
   } catch {
     return null;
@@ -287,24 +128,23 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState({ text: '', tone: 'info' });
-  const copy = getCopy();
 
   const steps = useMemo(
     () => [
       {
         id: SETUP_STEPS.CREDENTIALS,
-        badge: copy.steps.credentials.badge,
-        title: copy.steps.credentials.title,
-        description: copy.steps.credentials.description,
+        badge: COPY.steps.credentials.badge,
+        title: COPY.steps.credentials.title,
+        description: COPY.steps.credentials.description,
       },
       {
         id: SETUP_STEPS.SHEET_LINK,
-        badge: copy.steps.sheetLink.badge,
-        title: copy.steps.sheetLink.title,
-        description: copy.steps.sheetLink.description,
+        badge: COPY.steps.sheetLink.badge,
+        title: COPY.steps.sheetLink.title,
+        description: COPY.steps.sheetLink.description,
       },
     ],
-    [copy],
+    [],
   );
 
   const currentStep = steps[currentStepIndex];
@@ -330,10 +170,10 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
     if (currentStep.id === SETUP_STEPS.CREDENTIALS) {
       const stepErrors = {};
       if (!formData.username.trim()) {
-        stepErrors.username = copy.usernameRequired;
+        stepErrors.username = COPY.usernameRequired;
       }
       if (!formData.password.trim()) {
-        stepErrors.password = copy.passwordRequired;
+        stepErrors.password = COPY.passwordRequired;
       }
       setErrors((prev) => ({ ...prev, ...stepErrors }));
       return Object.keys(stepErrors).length === 0;
@@ -343,7 +183,7 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
     if (!validation.isValid) {
       const stepErrors = { ...validation.errors };
       if (stepErrors.sheetUrl) {
-        stepErrors.sheetUrl = copy.sheetUrlRequired;
+        stepErrors.sheetUrl = COPY.sheetUrlRequired;
       }
       setErrors((prev) => ({ ...prev, ...stepErrors }));
       return false;
@@ -357,17 +197,17 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
 
     if (currentStep.id === SETUP_STEPS.CREDENTIALS) {
       setSubmitting(true);
-      setStatusMessage({ text: copy.checkingUserMessage, tone: 'info' });
+      setStatusMessage({ text: COPY.checkingUserMessage, tone: 'info' });
       try {
         const existingUser = await findExistingUserSetup(formData.username, formData.password);
         if (existingUser) {
-          setStatusMessage({ text: copy.existingUserFoundMessage, tone: 'success' });
+          setStatusMessage({ text: COPY.existingUserFoundMessage, tone: 'success' });
           const normalized = normalizeSetupPayload({
             ...formData,
             userId: existingUser.userId,
             sheetUrl: existingUser.sheetUrl || existingUser.spreadsheetId,
             spreadsheetId: existingUser.spreadsheetId,
-            language: formData.language || existingUser.language || DEFAULT_LANGUAGE,
+            language: DEFAULT_LANGUAGE,
           });
           await new Promise((resolve) => {
             setTimeout(resolve, 300);
@@ -391,11 +231,14 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
 
     setSubmitting(true);
     try {
-      const normalized = normalizeSetupPayload(formData);
-      setStatusMessage({ text: copy.checkingSheetMessage, tone: 'info' });
+      const normalized = normalizeSetupPayload({
+        ...formData,
+        language: DEFAULT_LANGUAGE,
+      });
+      setStatusMessage({ text: COPY.checkingSheetMessage, tone: 'info' });
       const accessResult = await checkSheetAccess(normalized.spreadsheetId);
       if (!accessResult.ok) {
-        setErrors((prev) => ({ ...prev, sheetUrl: copy.sheetAccessDenied }));
+        setErrors((prev) => ({ ...prev, sheetUrl: COPY.sheetAccessDenied }));
         setStatusMessage({ text: '', tone: 'info' });
         return;
       }
@@ -413,10 +256,8 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
         onSubmit={handleSubmit}
       >
         <div>
-          <h1 className="text-2xl font-bold text-white glow-text">{copy.welcomeTitle}</h1>
-          <p className="mt-1 text-sm text-purple-200/80">
-            {copy.welcomeDescription}
-          </p>
+          <h1 className="text-2xl font-bold text-white glow-text">{COPY.welcomeTitle}</h1>
+          <p className="mt-1 text-sm text-purple-200/80">{COPY.welcomeDescription}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -459,11 +300,11 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
           {currentStep.id === SETUP_STEPS.CREDENTIALS ? (
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <label className="text-sm text-purple-200/90">
-                {copy.usernameLabel}
+                {COPY.usernameLabel}
                 <input
                   className={`${INPUT_CLASS} mt-1`}
                   onChange={(event) => updateField('username', event.target.value)}
-                  placeholder={copy.usernamePlaceholder}
+                  placeholder={COPY.usernamePlaceholder}
                   type="text"
                   value={formData.username}
                 />
@@ -473,11 +314,11 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
               </label>
 
               <label className="text-sm text-purple-200/90">
-                {copy.passwordLabel}
+                {COPY.passwordLabel}
                 <input
                   className={`${INPUT_CLASS} mt-1`}
                   onChange={(event) => updateField('password', event.target.value)}
-                  placeholder={copy.passwordPlaceholder}
+                  placeholder={COPY.passwordPlaceholder}
                   type="password"
                   value={formData.password}
                 />
@@ -491,20 +332,22 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
           {currentStep.id === SETUP_STEPS.SHEET_LINK ? (
             <div className="mt-4 space-y-4">
               <div className="rounded-md border border-cyan-500/30 bg-cyan-500/10 p-3 text-sm text-cyan-100">
-                <p className="font-medium">{copy.beforeSavingTitle}</p>
+                <p className="font-medium">{COPY.beforeSavingTitle}</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
-                  <li>{copy.beforeSavingShare}</li>
-                  <li>{copy.beforeSavingTabs} {requiredTabsText}.</li>
-                  <li>{copy.beforeSavingUrl}</li>
+                  <li>{COPY.beforeSavingShare}</li>
+                  <li>
+                    {COPY.beforeSavingTabs} {requiredTabsText}.
+                  </li>
+                  <li>{COPY.beforeSavingUrl}</li>
                 </ul>
               </div>
 
               <label className="block text-sm text-purple-200/90">
-                {copy.sheetUrlLabel}
+                {COPY.sheetUrlLabel}
                 <input
                   className={`${INPUT_CLASS} mt-1`}
                   onChange={(event) => updateField('sheetUrl', event.target.value)}
-                  placeholder={copy.sheetUrlPlaceholder}
+                  placeholder={COPY.sheetUrlPlaceholder}
                   type="text"
                   value={formData.sheetUrl}
                 />
@@ -514,7 +357,7 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
               </label>
 
               <div className="rounded-md border border-purple-500/30 bg-purple-500/10 p-3 text-xs text-purple-100">
-                <p className="font-medium text-purple-200">{copy.templateTitle}</p>
+                <p className="font-medium text-purple-200">{COPY.templateTitle}</p>
                 <p className="mt-1 break-all font-mono">{TEMPLATE_SHEET_URL}</p>
               </div>
             </div>
@@ -528,7 +371,7 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
             onClick={() => setCurrentStepIndex((prev) => Math.max(0, prev - 1))}
             type="button"
           >
-            {copy.backButton}
+            {COPY.backButton}
           </button>
 
           <button
@@ -536,9 +379,7 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
             disabled={submitting}
             type="submit"
           >
-            {isLastStep
-              ? (submitting ? copy.savingButton : copy.saveButton)
-              : copy.continueButton}
+            {isLastStep ? (submitting ? COPY.savingButton : COPY.saveButton) : COPY.continueButton}
           </button>
         </div>
       </form>
