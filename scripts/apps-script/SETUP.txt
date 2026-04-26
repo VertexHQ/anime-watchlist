@@ -1,24 +1,31 @@
 Google Apps Script API setup
 
-1) Open the Google Sheet that will store your anime watchlist.
-2) Create (or confirm) two tabs named exactly:
-   - watched
-   - unwatched
-3) In the sheet, open Extensions > Apps Script.
-4) Replace the default script content with scripts\apps-script\Code.gs from this repo.
-5) In Code.gs, set APP_CONFIG.SHARED_SECRET to your own strong secret string.
-6) Save the script project.
-7) Deploy as a web app:
+1) Open the Google Sheet that will store anime rows for each user.
+2) In the sheet, open Extensions > Apps Script.
+3) Replace the default script content with scripts\apps-script\Code.gs from this repo.
+4) Save the script project.
+5) Run `setupProperties()` once from the Apps Script editor to store script properties.
+6) Deploy as a web app:
    - Deploy > New deployment
    - Type: Web app
    - Execute as: Me
-   - Who has access: Anyone (or Anyone with link, based on your needs)
-8) Copy the web app URL and use it as your backend API endpoint.
+   - Who has access: Anyone
+7) Copy the web app URL and use it as `VITE_SHEETS_SCRIPT_URL`.
 
-POST body requirements:
-- Include "secret" with the same value as APP_CONFIG.SHARED_SECRET.
-- Include at minimum: title and status.
-- Supported status values:
-  - completed / watched
-  - watching
-  - planned / plan / unwatched
+Required status tabs (auto-created if missing):
+- watching
+- completed
+- plan
+- coming-soon
+- dropped
+
+Anime row headers are managed automatically from `APP_CONFIG.FIELDS`, including:
+- id, title, status, rating, notes, image
+- droppedReason
+- releaseDate
+- releaseDateNotDeclared
+- createdAt
+
+Status normalization supports legacy values, including:
+- upcoming -> coming-soon
+- droped -> dropped

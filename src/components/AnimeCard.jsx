@@ -1,8 +1,22 @@
 import { useState } from 'react';
+import { ANIME_STATUSES, normalizeAnimeStatus } from '../utils/constants';
 
 export default function AnimeCard({ anime, isDragging, onDragStart, onDragEnd, onDelete, onEdit }) {
   const [expanded, setExpanded] = useState(false);
   if (!anime) return null;
+  const normalizedStatus = normalizeAnimeStatus(anime.status);
+  const isComingSoon = normalizedStatus === ANIME_STATUSES.COMING_SOON;
+  const isDropped = normalizedStatus === ANIME_STATUSES.DROPPED;
+  const releaseDateNotDeclared = anime.releaseDateNotDeclared === true
+    || String(anime.releaseDateNotDeclared || '').toLowerCase() === 'true';
+  const releaseText = isComingSoon
+    ? (
+      releaseDateNotDeclared
+        ? 'Not declared'
+        : (anime.releaseDate ? new Date(anime.releaseDate).toLocaleDateString() : '')
+    )
+    : '';
+  const droppedReason = isDropped ? String(anime.droppedReason || '').trim() : '';
 
   return (
     <article
@@ -70,6 +84,14 @@ export default function AnimeCard({ anime, isDragging, onDragStart, onDragEnd, o
           </p>
           {anime.rating ? (
             <p className="text-xs text-yellow-400">★ {anime.rating} / 10</p>
+          ) : null}
+          {releaseText ? (
+            <p className="text-xs text-cyan-300">Release: {releaseText}</p>
+          ) : null}
+          {droppedReason ? (
+            <p className={`text-xs ${expanded ? 'whitespace-pre-wrap text-rose-300' : 'line-clamp-1 text-rose-300'}`}>
+              Drop reason: {droppedReason}
+            </p>
           ) : null}
           {anime.notes ? (
             <p className={`text-xs ${expanded ? 'whitespace-pre-wrap text-gray-300' : 'line-clamp-1 text-gray-500'}`}>

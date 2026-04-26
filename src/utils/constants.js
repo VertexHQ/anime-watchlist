@@ -8,14 +8,16 @@ export const SHEET_NAMES = {
   WATCHING: import.meta.env.VITE_SHEET_WATCHING || REQUIRED_SHEET_TABS.watching.name,
   COMPLETED: import.meta.env.VITE_SHEET_COMPLETED || REQUIRED_SHEET_TABS.completed.name,
   PLAN: import.meta.env.VITE_SHEET_PLAN || REQUIRED_SHEET_TABS.plan.name,
-  UPCOMING: import.meta.env.VITE_SHEET_UPCOMING || REQUIRED_SHEET_TABS.upcoming.name,
+  COMING_SOON: import.meta.env.VITE_SHEET_COMING_SOON || import.meta.env.VITE_SHEET_UPCOMING || REQUIRED_SHEET_TABS.comingSoon.name,
+  DROPPED: import.meta.env.VITE_SHEET_DROPPED || REQUIRED_SHEET_TABS.dropped.name,
 };
 
 export const ANIME_STATUSES = {
   COMPLETED: REQUIRED_SHEET_TABS.completed.name,
   WATCHING: REQUIRED_SHEET_TABS.watching.name,
   PLANNED: REQUIRED_SHEET_TABS.plan.name,
-  UPCOMING: REQUIRED_SHEET_TABS.upcoming.name,
+  COMING_SOON: REQUIRED_SHEET_TABS.comingSoon.name,
+  DROPPED: REQUIRED_SHEET_TABS.dropped.name,
 };
 
 export const API_STATUSES = {
@@ -56,8 +58,12 @@ export function normalizeAnimeStatus(status) {
     return ANIME_STATUSES.PLANNED;
   }
 
-  if (['upcoming', 'coming soon', 'not yet aired', 'unreleased'].includes(value)) {
-    return ANIME_STATUSES.UPCOMING;
+  if (['coming-soon', 'coming soon', 'upcoming', 'not yet aired', 'unreleased'].includes(value)) {
+    return ANIME_STATUSES.COMING_SOON;
+  }
+
+  if (['dropped', 'droped', 'on hold', 'on-hold'].includes(value)) {
+    return ANIME_STATUSES.DROPPED;
   }
 
   return value;

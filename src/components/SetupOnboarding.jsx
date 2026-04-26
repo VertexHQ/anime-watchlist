@@ -155,7 +155,8 @@ export default function SetupOnboarding({ initialValues, onComplete }) {
       REQUIRED_SHEET_TABS.completed.label,
       REQUIRED_SHEET_TABS.watching.label,
       REQUIRED_SHEET_TABS.plan.label,
-      REQUIRED_SHEET_TABS.upcoming.label,
+      REQUIRED_SHEET_TABS.comingSoon.label,
+      REQUIRED_SHEET_TABS.dropped.label,
     ].join(', '),
     [],
   );

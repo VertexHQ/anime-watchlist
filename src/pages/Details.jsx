@@ -10,6 +10,8 @@ function statusBadge(status) {
   if (n === ANIME_STATUSES.COMPLETED) return 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300';
   if (n === ANIME_STATUSES.WATCHING) return 'border-purple-500/40 bg-purple-500/15 text-purple-300';
   if (n === ANIME_STATUSES.PLANNED) return 'border-sky-500/40 bg-sky-500/15 text-sky-300';
+  if (n === ANIME_STATUSES.COMING_SOON) return 'border-amber-500/40 bg-amber-500/15 text-amber-300';
+  if (n === ANIME_STATUSES.DROPPED) return 'border-rose-500/40 bg-rose-500/15 text-rose-300';
   return 'border-gray-600 bg-gray-700/30 text-gray-300';
 }
 
@@ -18,6 +20,8 @@ function statusLabel(status) {
   if (n === ANIME_STATUSES.COMPLETED) return 'Completed';
   if (n === ANIME_STATUSES.WATCHING) return 'Watching';
   if (n === ANIME_STATUSES.PLANNED) return 'Plan to Watch';
+  if (n === ANIME_STATUSES.COMING_SOON) return 'Coming Soon';
+  if (n === ANIME_STATUSES.DROPPED) return 'Dropped';
   return status || 'Unknown';
 }
 

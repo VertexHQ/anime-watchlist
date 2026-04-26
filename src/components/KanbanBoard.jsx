@@ -34,13 +34,22 @@ const COLUMNS = [
     countClass: 'border-sky-500/30 bg-sky-500/15 text-sky-300',
   },
   {
-    id: ANIME_STATUSES.UPCOMING,
-    label: 'Upcoming',
+    id: ANIME_STATUSES.COMING_SOON,
+    label: 'Coming Soon',
     emoji: '✦',
     dotClass: 'bg-amber-400',
     borderClass: 'border-amber-500/50',
     glowClass: 'shadow-[inset_0_0_24px_rgba(251,191,36,0.07)]',
     countClass: 'border-amber-500/30 bg-amber-500/15 text-amber-300',
+  },
+  {
+    id: ANIME_STATUSES.DROPPED,
+    label: 'Dropped',
+    emoji: '✕',
+    dotClass: 'bg-rose-400',
+    borderClass: 'border-rose-500/50',
+    glowClass: 'shadow-[inset_0_0_24px_rgba(244,63,94,0.09)]',
+    countClass: 'border-rose-500/30 bg-rose-500/15 text-rose-300',
   },
 ];
 
@@ -84,8 +93,8 @@ export default function KanbanBoard() {
         </button>
       </div>
 
-      {/* Kanban board — 1 col on mobile, 2×2 grid on md+ */}
-      <div className="grid flex-1 min-h-0 grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-4 overflow-y-auto md:overflow-hidden">
+      {/* Kanban board — fixed desktop canvas, per-column scrolling */}
+      <div className="grid flex-1 min-h-0 grid-cols-1 gap-4 overflow-y-auto md:grid-cols-2 md:auto-rows-fr md:overflow-hidden xl:grid-cols-3 xl:auto-rows-fr">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}

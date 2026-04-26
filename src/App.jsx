@@ -87,7 +87,7 @@ function App() {
         setupComplete={setupReady && setupComplete}
         username={setup.username}
       />
-      <div className="md:flex-1 md:overflow-hidden mx-auto w-full max-w-7xl px-4 py-6">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 md:flex-1 md:min-h-0 md:overflow-hidden">
         {!setupReady ? <Loader message="Loading setup..." /> : null}
 
         {setupReady && !setupComplete ? (

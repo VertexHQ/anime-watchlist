@@ -29,7 +29,8 @@ export const REQUIRED_SHEET_TABS = Object.freeze({
   watching: Object.freeze({ name: 'watching', label: 'Watching' }),
   completed: Object.freeze({ name: 'completed', label: 'Completed' }),
   plan: Object.freeze({ name: 'plan', label: 'Plan' }),
-  upcoming: Object.freeze({ name: 'upcoming', label: 'Upcoming' }),
+  comingSoon: Object.freeze({ name: 'coming-soon', label: 'Coming Soon' }),
+  dropped: Object.freeze({ name: 'dropped', label: 'Dropped' }),
 });
 
 export const REQUIRED_SHEET_TAB_NAMES = Object.freeze(

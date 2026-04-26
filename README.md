@@ -1,7 +1,7 @@
 # Anime Watchlist
 
 A drag-and-drop kanban anime tracker built with Vite + React + Tailwind CSS.  
-Tracks anime across four columns — **Watching**, **Completed**, **Plan to Watch**, and **Upcoming** — with localStorage as the primary data store and Google Sheets sync via Apps Script.
+Tracks anime across five columns — **Watching**, **Completed**, **Plan to Watch**, **Coming Soon**, and **Dropped** — with localStorage as the primary data store and Google Sheets sync via Apps Script.
 
 ---
 
@@ -89,15 +89,17 @@ Existing-user behavior during step 1 (credentials):
 
 Sheet setup notes shown in-app:
 - Share as **Anyone with the link** with **edit** access
-- Required tabs used/created by the app (auto-created if missing): **Watching, Completed, Plan, Upcoming**
+- Required tabs used/created by the app (auto-created if missing): **Watching, Completed, Plan, Coming Soon, Dropped**
 - Example URL format: `https://docs.google.com/spreadsheets/d/<spreadsheet-id>/edit#gid=0`
+- Status-specific form behavior:
+  - **Dropped** shows optional **Drop reason**
+  - **Coming Soon** supports **Release date** or **Not declared**
 
 Persistence behavior:
 - Setup is saved in localStorage (`anime_watchlist_setup_v1`) with a stable local `userId`
 - Username/password are stored locally and restored for returning users (with cookie fallback support)
 - After setup is complete, users are not prompted again on refresh/revisit
-- Account controls are now compact in the navbar: **username**, **Language selector**, **Update Sheet Link**, **Logout**
-- Language can be changed anytime from the navbar selector (**English, Bangla, Hindi, Gujarati**)
+- Account controls are now compact in the navbar: **username**, **Theme toggle**, **Update Sheet Link**, **Logout**
 - Navbar includes a **Light/Dark mode** option
 - Theme preference is remembered locally and restored on refresh/revisit
 - The old large top account panel has been removed
@@ -130,7 +132,9 @@ All variables must be prefixed with `VITE_` so Vite exposes them at build time v
 | `VITE_SHEET_WATCHING` | No | Sheet tab name for watching (default: `watching`) |
 | `VITE_SHEET_COMPLETED` | No | Sheet tab name for completed (default: `completed`) |
 | `VITE_SHEET_PLAN` | No | Sheet tab name for plan to watch (default: `plan`) |
-| `VITE_SHEET_UPCOMING` | No | Sheet tab name for upcoming (default: `upcoming`) |
+| `VITE_SHEET_COMING_SOON` | No | Sheet tab name for coming-soon (default: `coming-soon`) |
+| `VITE_SHEET_DROPPED` | No | Sheet tab name for dropped (default: `dropped`) |
+| `VITE_SHEET_UPCOMING` | No | Legacy fallback tab name for old upcoming data |
 
 **Example `.env`:**
 ```env
@@ -139,7 +143,10 @@ VITE_SPREADSHEET_ID=your_spreadsheet_id_here
 VITE_SHEET_WATCHING=watching
 VITE_SHEET_COMPLETED=completed
 VITE_SHEET_PLAN=plan
-VITE_SHEET_UPCOMING=upcoming
+VITE_SHEET_COMING_SOON=coming-soon
+VITE_SHEET_DROPPED=dropped
+# Optional legacy fallback:
+# VITE_SHEET_UPCOMING=upcoming
 ```
 
 > `.env` is gitignored. Never commit it. Use `.env.example` as the template.
@@ -258,7 +265,7 @@ sheetsSync.js
         ↓  (fetch POST, mode: no-cors, fire-and-forget)
 Apps Script Web App
         ↓
-Google Sheets (watching / completed / plan / upcoming tabs)
+Google Sheets (watching / completed / plan / coming-soon / dropped tabs)
 ```
 
 - Onboarding and sheet-link updates also sync setup metadata (`userId`, `sheetUrl`, `spreadsheetId`) to the central **User Data** tab via Apps Script.

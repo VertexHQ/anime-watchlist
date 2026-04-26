@@ -66,6 +66,9 @@ export function addAnime(payload) {
     rating: payload.rating ?? '',
     notes: payload.notes ?? '',
     image: payload.image ?? '',
+    droppedReason: payload.droppedReason ?? '',
+    releaseDate: payload.releaseDate ?? '',
+    releaseDateNotDeclared: payload.releaseDateNotDeclared ?? false,
   };
   list.unshift(entry);
   persist(list);
@@ -84,6 +87,9 @@ export function updateAnime(id, payload) {
     rating: payload.rating ?? list[idx].rating,
     notes: payload.notes ?? list[idx].notes,
     image: payload.image ?? list[idx].image,
+    droppedReason: payload.droppedReason ?? list[idx].droppedReason ?? '',
+    releaseDate: payload.releaseDate ?? list[idx].releaseDate ?? '',
+    releaseDateNotDeclared: payload.releaseDateNotDeclared ?? list[idx].releaseDateNotDeclared ?? false,
   };
   persist(list);
   syncUpdate(list[idx]); // mirror to Google Sheets (handles drag-drop status moves)

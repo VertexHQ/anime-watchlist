@@ -6,7 +6,7 @@ export default function KanbanColumn({ column, items, draggingId, onDragStart, o
 
   return (
     <div
-      className={`flex flex-col gap-2 rounded-xl border p-3 backdrop-blur-sm transition-all duration-150 md:h-full ${
+      className={`flex min-h-0 flex-col gap-2 rounded-xl border p-3 backdrop-blur-sm transition-all duration-150 md:h-full ${
         isDragOver
           ? `${column.borderClass} ${column.glowClass} bg-white/5`
           : 'border-gray-700/40 bg-black/30'
@@ -38,7 +38,7 @@ export default function KanbanColumn({ column, items, draggingId, onDragStart, o
       </div>
 
       {/* Cards — scrollable, never pushes the page */}
-      <div className="flex flex-col gap-2 overflow-y-auto md:flex-1 md:min-h-0 pr-0.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-0.5">
         {items.map((item) => (
           <AnimeCard
             key={item.id}

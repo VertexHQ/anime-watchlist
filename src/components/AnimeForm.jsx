@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAnime } from '../hooks/useAnime';
-import { ANIME_STATUSES } from '../utils/constants';
+import { ANIME_STATUSES, normalizeAnimeStatus } from '../utils/constants';
 
 const INITIAL_FORM = {
   title: '',
@@ -8,10 +8,20 @@ const INITIAL_FORM = {
   rating: '',
   notes: '',
   image: '',
+  droppedReason: '',
+  releaseDate: '',
+  releaseDateNotDeclared: false,
 };
 
 const inputClass =
   'rounded-md border border-purple-900/50 bg-black/60 px-3 py-2 text-white placeholder-gray-600 outline-none ring-purple-500/40 backdrop-blur-sm transition focus:border-purple-500 focus:ring-2';
+
+function normalizeFormStatus(status) {
+  const normalized = normalizeAnimeStatus(status);
+  return Object.values(ANIME_STATUSES).includes(normalized)
+    ? normalized
+    : ANIME_STATUSES.WATCHING;
+}
 
 export default function AnimeForm({ initialData = null, onSuccess }) {
   const isEdit = Boolean(initialData);
@@ -19,10 +29,15 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
     isEdit
       ? {
           title: initialData.title ?? '',
-          status: initialData.status ?? ANIME_STATUSES.WATCHING,
+          status: normalizeFormStatus(initialData.status ?? ANIME_STATUSES.WATCHING),
           rating: initialData.rating ?? '',
           notes: initialData.notes ?? '',
           image: initialData.image ?? '',
+          droppedReason: initialData.droppedReason ?? '',
+          releaseDate: initialData.releaseDate ?? '',
+          releaseDateNotDeclared:
+            initialData.releaseDateNotDeclared === true
+            || String(initialData.releaseDateNotDeclared || '').toLowerCase() === 'true',
         }
       : INITIAL_FORM,
   );
@@ -32,8 +47,29 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
   const { addAnimeEntry, updateAnimeEntry, anime } = useAnime();
 
   function handleChange(event) {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = event.target;
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value,
+      };
+
+      if (name === 'status') {
+        if (value !== ANIME_STATUSES.DROPPED) {
+          next.droppedReason = '';
+        }
+        if (value !== ANIME_STATUSES.COMING_SOON) {
+          next.releaseDate = '';
+          next.releaseDateNotDeclared = false;
+        }
+      }
+
+      if (name === 'releaseDateNotDeclared' && checked) {
+        next.releaseDate = '';
+      }
+
+      return next;
+    });
   }
 
   async function handleSubmit(event) {
@@ -44,11 +80,29 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
 
     const payload = {
       title: formData.title.trim(),
-      status: formData.status,
+      status: normalizeFormStatus(formData.status),
       rating: formData.rating,
       notes: formData.notes.trim(),
       image: formData.image.trim(),
+      droppedReason:
+        formData.status === ANIME_STATUSES.DROPPED ? formData.droppedReason.trim() : '',
+      releaseDate:
+        formData.status === ANIME_STATUSES.COMING_SOON && !formData.releaseDateNotDeclared
+          ? formData.releaseDate
+          : '',
+      releaseDateNotDeclared:
+        formData.status === ANIME_STATUSES.COMING_SOON ? Boolean(formData.releaseDateNotDeclared) : false,
     };
+
+    if (
+      payload.status === ANIME_STATUSES.COMING_SOON
+      && !payload.releaseDateNotDeclared
+      && !payload.releaseDate
+    ) {
+      setSubmitError('For Coming Soon, choose a release date or mark it as Not declared.');
+      setSubmitting(false);
+      return;
+    }
 
     try {
       if (isEdit) {
@@ -58,7 +112,7 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
         const duplicate = anime.find(
           (a) =>
             a.title.trim().toLowerCase() === payload.title.toLowerCase() &&
-            a.status === payload.status,
+            normalizeAnimeStatus(a.status) === payload.status,
         );
         if (duplicate) {
           setSubmitError(`"${payload.title}" already exists in your ${payload.status} list.`);
@@ -107,7 +161,8 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
             <option value={ANIME_STATUSES.WATCHING}>Watching</option>
             <option value={ANIME_STATUSES.COMPLETED}>Completed</option>
             <option value={ANIME_STATUSES.PLANNED}>Plan to Watch</option>
-            <option value={ANIME_STATUSES.UPCOMING}>Upcoming</option>
+            <option value={ANIME_STATUSES.COMING_SOON}>Coming Soon</option>
+            <option value={ANIME_STATUSES.DROPPED}>Dropped</option>
           </select>
         </label>
 
@@ -149,6 +204,47 @@ export default function AnimeForm({ initialData = null, onSuccess }) {
           value={formData.notes}
         />
       </label>
+
+      {formData.status === ANIME_STATUSES.DROPPED ? (
+        <label className="flex flex-col gap-1.5 text-sm text-purple-200/80">
+          Drop Reason (optional)
+          <input
+            className={inputClass}
+            name="droppedReason"
+            onChange={handleChange}
+            placeholder="Why did you drop this anime?"
+            type="text"
+            value={formData.droppedReason}
+          />
+        </label>
+      ) : null}
+
+      {formData.status === ANIME_STATUSES.COMING_SOON ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-1.5 text-sm text-purple-200/80">
+            Release Date
+            <input
+              className={inputClass}
+              disabled={formData.releaseDateNotDeclared}
+              name="releaseDate"
+              onChange={handleChange}
+              type="date"
+              value={formData.releaseDate}
+            />
+          </label>
+
+          <label className="flex items-center gap-2 self-end rounded-md border border-purple-900/40 bg-black/30 px-3 py-2 text-sm text-purple-200/80">
+            <input
+              checked={formData.releaseDateNotDeclared}
+              className="h-4 w-4 accent-purple-500"
+              name="releaseDateNotDeclared"
+              onChange={handleChange}
+              type="checkbox"
+            />
+            Not declared
+          </label>
+        </div>
+      ) : null}
 
       {submitError ? (
         <p className="rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
